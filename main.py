@@ -1,16 +1,35 @@
 import math
+import enum
+
+class Option(enum.Enum):
+    DEGREES = 0,
+    RADIAN = 1,
+
+def cos(equation: float, type: Option)->float:
+    if type == Option.DEGREES:
+        equation = math.radians(equation)
+    return math.cos(equation)
+    
+def sin(equation: float, type: Option)->float:
+    if type == Option.DEGREES:
+        equation = math.radians(equation)
+    return math.sin(equation)
 
 class Equation:
-    def __init__(self, equation):
-        self.equation = self.toGoodEquation(equation)
+    def __init__(self, equation, **args):
+        self.equation = self.toHumanRedeable(equation)
+
+        self.options = {}
+        print(args)
+        self.options["angles"] = args.get("angle", Option.DEGREES)
     
-    def toGoodEquation(self, equation: str):
+    def toHumanRedeable(self, equation: str):
         replacables = {
             "++": "+",
             "+-": "-",
             "--": "-",
             "--": "+",
-            "^": "**",
+            "**": "^",
         }
         for nbr in range(0, 10):
             replacables[str(nbr) + "("] = str(nbr) + "*("
@@ -19,8 +38,25 @@ class Equation:
             equation = equation.replace(froms, to)
         return equation
     
+    def toProgramRedeable(self):
+        replacables = {
+            "^": "**",
+        }
+        for nbr in range(0, 10):
+            replacables[str(nbr) + "("] = str(nbr) + "*("
+        
+        for froms, to in replacables.items():
+            self.equation = self.equation.replace(froms, to)
+        return self.equation
+    
+    def sin(self, equation):
+        return sin(equation, self.options["angles"])
+    
+    def cos(self, equation):
+        return cos(equation, self.options["angles"])
+
     def result(self):
-        equation = self.equation
+        equation = self.toProgramRedeable()
         result = 0
         if "(" in equation:
             start = len(equation)
@@ -34,7 +70,10 @@ class Equation:
             for i in range(start + 1, end):
                 value += equation[i]
             functions = {
-                "exp": math.exp
+                "exp": math.exp,
+                "cos": self.cos,
+                "sin": self.sin,
+                "tan": math.tan
             }
             for key, func in functions.items():
                 areFunction = True
@@ -48,6 +87,8 @@ class Equation:
 
             return Equation(equation[:start] + str(Equation(value).result()) + equation[end + 1:]).result()
         else:
+            if "pi" in equation:
+                equation = equation.replace("pi", str(math.pi))
             result += float(eval(equation))
         return result
     
@@ -71,7 +112,7 @@ class EquaDiff:
         b = self.yPrime.split("+")[1]
         return self.toGoodEquation("Cexp(" + str(a) + self.unknow + ") + " + str(-int(b) / int(a)))
 
-diff = Equation("exp(27)")
+diff = Equation("cos(1)", angles=Option.RADIAN)
 print(diff.result())
 print(diff)
-print(eval("2**3"))
+print(math.cos(1))
