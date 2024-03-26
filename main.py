@@ -5,24 +5,94 @@ class Option(enum.Enum):
     DEGREES = 0,
     RADIAN = 1,
 
-def cos(equation: float, type: Option)->float:
+
+def cos(x: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the cosine of x (measured in radians).
+    """
     if type == Option.DEGREES:
-        equation = math.radians(equation)
-    return math.cos(equation)
-    
-def sin(equation: float, type: Option)->float:
+        x = math.radians(x)
+    return math.cos(x)
+
+
+def sin(x: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the sine of x (measured in radians).
+    """
     if type == Option.DEGREES:
-        equation = math.radians(equation)
-    return math.sin(equation)
+        x = math.radians(x)
+    return math.sin(x)
+
+
+def tan(x: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the tangent of x (measured in radians).
+    """
+    if type == Option.DEGREES:
+        x = math.radians(x)
+    return math.tan(x)
+
+
+def acos(x: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the arc cosine (measured in radians) of x.
+
+    The result is between 0 and pi.
+    """
+    if type == Option.DEGREES:
+        x = math.radians(x)
+    return math.acos(x)
+
+
+def asin(x: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the arc sine (measured in radians) of x.
+
+    The result is between -pi/2 and pi/2.
+    """
+    if type == Option.DEGREES:
+        x = math.radians(x)
+    return math.asin(x)
+
+
+def atan(x: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the arc tangent (measured in radians) of x.
+
+    The result is between -pi/2 and pi/2.
+    """
+    if type == Option.DEGREES:
+        x = math.radians(x)
+    return math.atan(x)
+
+
+def atan2(x: float, y: float, type: Option = Option.RADIAN)->float:
+    """
+    Return the arc tangent (measured in radians) of y/x.
+
+    Unlike atan(y/x), the signs of both x and y are considered.
+    """
+    if type == Option.DEGREES:
+        x = math.radians(x)
+    return math.atan2(x)
+
+
+def resolve(calcul: str, options: dict[Option]):
+    equation = Equation(calcul)
+    equation.setOption(options)
+    return equation.result()
+
 
 class Equation:
     def __init__(self, equation, **args):
         self.equation = self.toHumanRedeable(equation)
 
         self.options = {}
-        print(args)
-        self.options["angles"] = args.get("angle", Option.DEGREES)
+        self.options["angles"] = args.get("angles", Option.DEGREES)
     
+    def setOption(self, options: dict):
+        self.options = options
+
     def toHumanRedeable(self, equation: str):
         replacables = {
             "++": "+",
@@ -55,7 +125,7 @@ class Equation:
     def cos(self, equation):
         return cos(equation, self.options["angles"])
 
-    def result(self):
+    def result(self)->float:
         equation = self.toProgramRedeable()
         result = 0
         if "(" in equation:
@@ -81,11 +151,11 @@ class Equation:
                     if equation[start - i] != key[start - i]:
                         areFunction = False
                 if areFunction:
-                    value = str(func(Equation(value).result()))
+                    value = str(func(resolve(value, self.options)))
                     start -= len(key)
                     break
 
-            return Equation(equation[:start] + str(Equation(value).result()) + equation[end + 1:]).result()
+            return resolve(equation[:start] + str(resolve(value, self.options)) + equation[end + 1:], self.options)
         else:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
