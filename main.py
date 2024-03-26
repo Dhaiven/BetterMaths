@@ -1,5 +1,6 @@
 import math
 import enum
+from typing import override
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -74,7 +75,8 @@ def atan2(x: float, y: float, type: Option = Option.RADIAN)->float:
     """
     if type == Option.DEGREES:
         x = math.radians(x)
-    return math.atan2(x)
+        y = math.radians(y)
+    return math.atan2(x, y)
 
 
 def resolve(calcul: str, options: dict[Option]):
@@ -85,7 +87,10 @@ def resolve(calcul: str, options: dict[Option]):
 
 class Equation:
     def __init__(self, equation, **args):
-        self.equation = self.toHumanRedeable(equation)
+        self.humanEquation = equation
+        self.toHumanRedeable()
+        self.equation = equation
+        self.toProgramRedeable()
 
         self.options = {}
         self.options["angles"] = args.get("angles", Option.DEGREES)
@@ -93,69 +98,61 @@ class Equation:
     def setOption(self, options: dict):
         self.options = options
 
-    def toHumanRedeable(self, equation: str):
+    def toHumanRedeable(self):
         replacables = {
+            " ": "",
             "++": "+",
             "+-": "-",
             "--": "-",
             "--": "+",
-            "**": "^",
         }
-        for nbr in range(0, 10):
-            replacables[str(nbr) + "("] = str(nbr) + "*("
-        
+
         for froms, to in replacables.items():
-            equation = equation.replace(froms, to)
-        return equation
+            self.humanEquation = self.humanEquation.replace(froms, to)
+        return self.humanEquation
     
     def toProgramRedeable(self):
+        self.toHumanRedeable()
+
         replacables = {
             "^": "**",
         }
         for nbr in range(0, 10):
             replacables[str(nbr) + "("] = str(nbr) + "*("
-        
+        replacables["atan2*("] = "atan2("
+
         for froms, to in replacables.items():
             self.equation = self.equation.replace(froms, to)
         return self.equation
-    
-    def sin(self, equation):
-        return sin(equation, self.options["angles"])
-    
-    def cos(self, equation):
-        return cos(equation, self.options["angles"])
 
     def result(self)->float:
         equation = self.toProgramRedeable()
         result = 0
         if "(" in equation:
-            start = len(equation)
-            end = 0
-            for i in range(len(equation)):
-                if equation[i] == "(" and i < start:
-                    start = i
-                elif equation[i] == ")" and i > end:
-                    end = i
-            value = ""
-            for i in range(start + 1, end):
-                value += equation[i]
+            start = equation.find("(")
+            end = equation.rfind(")")
+            value = resolve(equation[start + 1:end], self.options)
             functions = {
-                "exp": math.exp,
-                "cos": self.cos,
-                "sin": self.sin,
-                "tan": math.tan
+                "exp": lambda: math.exp(value),
+                "cos": lambda: cos(value, self.options["angles"]),
+                "sin": lambda: sin(value, self.options["angles"]),
+                "tan": lambda: tan(value, self.options["angles"]),
+                "acos": lambda: acos(value, self.options["angles"]),
+                "asin": lambda: asin(value, self.options["angles"]),
+                "atan": lambda: atan(value, self.options["angles"]),
+                "atan2": lambda: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), self.options["angles"]),
             }
             for key, func in functions.items():
-                areFunction = True
-                for i in range(start - len(key) + 1, start + 1):
-                    if equation[start - i] != key[start - i]:
-                        areFunction = False
-                if areFunction:
-                    value = str(func(resolve(value, self.options)))
+                if key == equation[start - len(key):start]:
+                    value = func()
                     start -= len(key)
                     break
 
-            return resolve(equation[:start] + str(resolve(value, self.options)) + equation[end + 1:], self.options)
+            return resolve(equation[:start] + str(value) + equation[end + 1:], self.options)
+        elif "," in equation:
+            if "pi" in equation:
+                equation = equation.replace("pi", str(math.pi))
+            return equation
         else:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
@@ -163,26 +160,45 @@ class Equation:
         return result
     
     def __str__(self) -> str:
+        return self.humanEquation
+
+
+
+class Function(Equation):
+    def __init__(self, equation, name = "x", **args):
+        self.name = name
+        super().__init__(equation, **args)
+    
+    @override
+    def toProgramRedeable(self):
+        super().toProgramRedeable()
+
+        replacables = {}
+        for nbr in range(0, 10):
+            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
+        
+        for froms, to in replacables.items():
+            self.equation = self.equation.replace(froms, to)
         return self.equation
+    
+    def result(self, value: float) -> float:
+        return resolve(self.equation.replace(self.name, str(value)), self.options)
 
 
-class EquaDiff:
-    def __init__(self, yPrime, unknow) -> None:
-        self.yPrime: str = yPrime
-        self.unknow = unknow
+
+class EquaDiff(Function):
+    def __init__(self, equation, name="x", **args):
+        super().__init__(equation, name, **args)
+
     def result(self, value = ""):
-        if type(value) != str:
-            value = str(value)
-        if value != "":
-            value = "*" + value
-        #equation = self.yPrime.replace(self.unknow, str(value))
-        a = self.yPrime.split("+")[0]
-        a = a.replace(self.unknow, value)
-        a = self.equation(a)
-        b = self.yPrime.split("+")[1]
-        return self.toGoodEquation("Cexp(" + str(a) + self.unknow + ") + " + str(-int(b) / int(a)))
+        a = self.equation.split("+")[0]
+        a = a.replace(self.name, value)
+        a = resolve(a, self.options)
+        b = self.equation.split("+")[1]
+        self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
+        print(self.equation)
+        return self.toHumanRedeable()
 
-diff = Equation("cos(1)", angles=Option.RADIAN)
-print(diff.result())
+diff = Function("2y+2", "y")
+print(diff.result(1))
 print(diff)
-print(math.cos(1))
