@@ -1,6 +1,5 @@
 import math
 import enum
-from typing import override
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -130,9 +129,20 @@ class Equation:
         result = 0
         if "(" in equation:
             start = equation.find("(")
-            end = equation.rfind(")")
+            nbrCanBePassed = 1
+            end = -1
+            for i in range(start + 1, len(equation)):
+                element = equation[i]
+                if element == "(":
+                    nbrCanBePassed += 1
+                elif element == ")":
+                    nbrCanBePassed -= 1
+                    if nbrCanBePassed == 0:
+                        end = i
+                        break
             value = resolve(equation[start + 1:end], self.options)
             functions = {
+                "sqrt": lambda: math.sqrt(value),
                 "exp": lambda: math.exp(value),
                 "cos": lambda: cos(value, self.options["angles"]),
                 "sin": lambda: sin(value, self.options["angles"]),
@@ -158,7 +168,25 @@ class Equation:
                 equation = equation.replace("pi", str(math.pi))
             result += float(eval(equation))
         return result
+
+    def __add__(self, other)->"Equation":
+        options = self.options
+        for key, value in other.options.items():
+            options[key] = value
+        new = Equation(self.humanEquation + "+" + other.humanEquation)
+        new.setOption(options)
+        return new
     
+    def __mul__(self, other)->"Equation":
+        if type(other) != Equation:
+            return super.__add__()
+        options = self.options
+        for key, value in other.options.items():
+            options[key] = value
+        new = Equation(self.humanEquation + "+" + other.humanEquation)
+        new.setOption(options)
+        return new
+
     def __str__(self) -> str:
         return self.humanEquation
 
@@ -168,8 +196,9 @@ class Function(Equation):
     def __init__(self, equation, name = "x", **args):
         self.name = name
         super().__init__(equation, **args)
+
+        self.cachedResults = {}
     
-    @override
     def toProgramRedeable(self):
         super().toProgramRedeable()
 
@@ -180,9 +209,14 @@ class Function(Equation):
         for froms, to in replacables.items():
             self.equation = self.equation.replace(froms, to)
         return self.equation
-    
+
     def result(self, value: float) -> float:
-        return resolve(self.equation.replace(self.name, str(value)), self.options)
+        value = str(value)
+        if value in self.cachedResults:
+            return self.cachedResults[value]
+        r = resolve(self.equation.replace(self.name, str(value)), self.options)
+        self.cachedResults[value] = r
+        return r
 
 
 
@@ -199,6 +233,5 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-diff = Function("2y+2", "y")
-print(diff.result(1))
-print(diff)
+diff = Equation("exp(sqrt(0))")
+print(diff.result())
