@@ -144,6 +144,7 @@ class Equation:
             functions = {
                 "sqrt": lambda: math.sqrt(value),
                 "exp": lambda: math.exp(value),
+                "log": lambda: math.log(value, math.e),
                 "cos": lambda: cos(value, self.options["angles"]),
                 "sin": lambda: sin(value, self.options["angles"]),
                 "tan": lambda: tan(value, self.options["angles"]),
@@ -170,20 +171,148 @@ class Equation:
         return result
 
     def __add__(self, other)->"Equation":
+        otherEquation = ""
         options = self.options
-        for key, value in other.options.items():
-            options[key] = value
-        new = Equation(self.humanEquation + "+" + other.humanEquation)
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation(self.humanEquation + "+" + otherEquation)
+        new.setOption(options)
+        return new
+    
+    def __radd__(self, other)->"Equation":
+        return self.__add__(other)
+    
+    def __sub__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+        
+        new = Equation(self.humanEquation + "-(" + otherEquation + ")")
+        new.setOption(options)
+        return new
+    
+    def __rsub__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+        
+        new = Equation(otherEquation + "-(" + self.humanEquation + ")")
         new.setOption(options)
         return new
     
     def __mul__(self, other)->"Equation":
-        if type(other) != Equation:
-            return super.__add__()
+        otherEquation = ""
         options = self.options
-        for key, value in other.options.items():
-            options[key] = value
-        new = Equation(self.humanEquation + "+" + other.humanEquation)
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation(otherEquation + "(" + self.humanEquation + ")")
+        new.setOption(options)
+        return new
+    
+    def __rmul__(self, other)->"Equation":
+        return self.__mul__(other)
+    
+    def __floordiv__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation("(" + self.humanEquation + ")//" + otherEquation)
+        new.setOption(options)
+        return new
+    
+    def __rfloordiv__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation(otherEquation + "//(" + self.humanEquation + ")")
+        new.setOption(options)
+        return new
+
+    def __truediv__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation("(" + self.humanEquation + ")/" + otherEquation)
+        new.setOption(options)
+        return new
+    
+    def __rtruediv__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation(otherEquation + "/(" + self.humanEquation + ")")
+        new.setOption(options)
+        return new
+
+    def __mod__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation("(" + self.humanEquation + ")%" + otherEquation)
+        new.setOption(options)
+        return new
+    
+    def __rmod__(self, other)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation(otherEquation + "%(" + self.humanEquation + ")")
         new.setOption(options)
         return new
 
@@ -233,5 +362,8 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-diff = Equation("exp(sqrt(0))")
-print(diff.result())
+diff = Equation("1")
+equa2 = Equation("2+7")
+test = equa2 + diff
+
+print(test.result())
