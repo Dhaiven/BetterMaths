@@ -78,9 +78,10 @@ def atan2(x: float, y: float, type: Option = Option.RADIAN)->float:
     return math.atan2(x, y)
 
 
-def resolve(calcul: str, options: dict[Option]):
+def resolve(calcul: str, options: dict[Option] = {}):
     equation = Equation(calcul)
-    equation.setOption(options)
+    if len(options) != 0:
+        equation.setOption(options)
     return equation.result()
 
 
@@ -167,7 +168,7 @@ class Equation:
         else:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
-            result += float(eval(equation))
+            result = eval(equation)
         return result
 
     def __add__(self, other)->"Equation":
@@ -315,8 +316,148 @@ class Equation:
         new = Equation(otherEquation + "%(" + self.humanEquation + ")")
         new.setOption(options)
         return new
+    
 
-    def __str__(self) -> str:
+    def __divmod__(self, other) -> tuple[int, int]:
+        result = self.result()
+        otherResult = 0
+        if type(other) != Equation:
+            otherResult = float(other)
+        else:
+            otherResult = other.result()
+        return (result // otherResult, result % otherResult)
+    
+
+    def __rdivmod__(self, other) -> tuple[int, int]:
+        result = self.result()
+        otherResult = 0
+        if type(other) != Equation:
+            otherResult = float(other)
+        else:
+            otherResult = other.result()
+        return (otherResult // result, otherResult % result)
+    
+
+    def __pow__(self, other, mod: int = None)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation("(" + self.humanEquation + ")**" + otherEquation)
+        new.setOption(options)
+        return new
+    
+
+    def __rpow__(self, other, mod: int = None)->"Equation":
+        otherEquation = ""
+        options = self.options
+        if type(other) != Equation:
+            otherEquation = str(other)
+        else:
+            otherEquation = other.humanEquation
+            for key, value in other.options.items():
+                options[key] = value
+
+        new = Equation(otherEquation + "**(" + self.humanEquation + ")")
+        new.setOption(options)
+        return new
+
+
+    def __neg__(self)->"Equation":
+        new = Equation("-(" + self.humanEquation + ")")
+        new.setOption(self.options)
+        return new
+    
+
+    def __eq__(self, other)->bool:
+        otherResult = ""
+        if type(other) != Equation:
+            otherResult = resolve(str(other))
+        else:
+            otherResult = other.result()
+
+        return self.result() == otherResult
+    
+    def __ne__(self, other)->bool:
+        otherResult = ""
+        if type(other) != Equation:
+            otherResult = resolve(str(other))
+        else:
+            otherResult = other.result()
+
+        return self.result() != otherResult
+    
+    def __lt__(self, other)->bool:
+        otherResult = ""
+        if type(other) != Equation:
+            otherResult = resolve(str(other))
+        else:
+            otherResult = other.result()
+
+        return self.result() < otherResult
+
+
+    def __le__(self, other)->bool:
+        otherResult = ""
+        if type(other) != Equation:
+            otherResult = resolve(str(other))
+        else:
+            otherResult = other.result()
+
+        return self.result() <= otherResult
+
+
+    def __gt__(self, other)->bool:
+        otherResult = ""
+        if type(other) != Equation:
+            otherResult = resolve(str(other))
+        else:
+            otherResult = other.result()
+
+        return self.result() > otherResult
+
+
+    def __ge__(self, other)->bool:
+        otherResult = ""
+        if type(other) != Equation:
+            otherResult = resolve(str(other))
+        else:
+            otherResult = other.result()
+
+        return self.result() >= otherResult
+    
+
+    def __float__(self)->float:
+        return float(self.result())
+
+
+    def __int__(self)->int:
+        return int(self.result())
+
+
+    def __abs__(self)->int:
+        return abs(self.result())
+    
+
+    #TODO: ndigits must be SupportsIndex
+    def __round__(self, ndigits: None = None)->int:
+        return round(self.result(), ndigits)
+    
+
+    def __ceil__(self)->int:
+        return math.ceil(self.result())
+
+
+    def __floor__(self)->int:
+        return math.floor(self.result())
+
+
+    def __str__(self)->str:
         return self.humanEquation
 
 
@@ -362,8 +503,8 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-diff = Equation("1")
-equa2 = Equation("2+7")
-test = equa2 + diff
-
-print(test.result())
+equa = Equation("5.2")
+equa2 = Equation("cos(76)(sqrt(76**2+7))-1")
+equa3 = equa ** equa2
+print(equa3)
+print(round(equa - equa2))
