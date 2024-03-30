@@ -481,5 +481,5 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-equa = Equation("log(exp(7))")
+equa = Equation("2+7*8cos(3)")
 print(equa.result())
