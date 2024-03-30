@@ -84,7 +84,7 @@ def resolve(calcul: str, options: dict[Option] = {}):
 
 
 class Equation:
-    def __init__(self, equation, **args):
+    def __init__(self, equation: str, **args):
         self.humanEquation = equation
         self.toHumanRedeable()
         self.equation = equation
@@ -120,6 +120,9 @@ class Equation:
         }
         for nbr in range(0, 10):
             replacables[str(nbr) + "("] = str(nbr) + "*("
+            for func in ["sqrt", "exp", "log", "cos", "sin", "tan", "acos", "asin", "atan", "atan2"]:
+                replacables[str(nbr) + func] = str(nbr) + "*" + func
+                
         replacables["atan2*("] = "atan2("
 
         for froms, to in replacables.items():
@@ -128,6 +131,7 @@ class Equation:
 
     def result(self)->float:
         equation = self.toProgramRedeable()
+        print(equation)
         result = 0
         if "(" in equation:
             start = equation.find("(")
@@ -145,8 +149,8 @@ class Equation:
             value = resolve(equation[start + 1:end], self.options)
             functions = {
                 "sqrt": lambda: math.sqrt(value),
-                "exp": lambda: math.exp(value),
-                "log": lambda: math.log(value, math.e),
+                "exp": lambda: round(math.exp(value)),
+                "log": lambda: round(math.log(value, math.e)),
                 "cos": lambda: cos(value, self.options["angles"]),
                 "sin": lambda: sin(value, self.options["angles"]),
                 "tan": lambda: tan(value, self.options["angles"]),
@@ -477,5 +481,5 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-equa = Equation("7!")
+equa = Equation("log(exp(7))")
 print(equa.result())
