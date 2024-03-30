@@ -11,5 +11,5 @@
 BetterMath accepts community contributions!
 
 ## Authors
-  - <img src="https://www.github.com/Dhaiven.png" width="3%" height="3%" border-radius=100% />  [@Dhaiven](https://www.github.com/Dhaiven) for code
-  - <img src="https://www.github.com/algorythmTTV.png" width="3%" height="3%" border-radius=100% />  [@algorythmTTV](https://www.github.com/algorythmTTV) for images and site
+  - <img src="https://www.github.com/Dhaiven.png" width="3%" height="3%"/> [@Dhaiven](https://www.github.com/Dhaiven) for code
+  - <img src="https://www.github.com/algorythmTTV.png" width="3%" height="3%"/> [@algorythmTTV](https://www.github.com/algorythmTTV) for images and site
