@@ -43,7 +43,7 @@ class IsoscelesTriangle(Triangle):
             angle2Name,
             angle3Name
             ) -> None:
-        super().__init__(isosceleSide, otherSide, Angle(angle1Name, 60), Angle(angle2Name, 60), Angle(angle3Name, 60))
+        super().__init__(isosceleSide, isosceleSide, otherSide, Angle(angle1Name, 60), Angle(angle2Name, 60), Angle(angle3Name, 60))
 
 
 
@@ -67,7 +67,7 @@ class EquilateralTriangle(IsoscelesTriangle):
             angle2Name,
             angle3Name
             ) -> None:
-        super().__init__(side, side, Angle(angle1Name, 60), Angle(angle2Name, 60), Angle(angle3Name, 60))
+        super().__init__(side, side, angle1Name, angle2Name, angle3Name)
 
 
 angle = Angle("A", 10)
