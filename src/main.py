@@ -120,7 +120,7 @@ class Equation:
         }
         for nbr in range(0, 10):
             replacables[str(nbr) + "("] = str(nbr) + "*("
-            for func in ["sqrt", "exp", "log", "cos", "sin", "tan", "acos", "asin", "atan", "atan2"]:
+            for func in ["sqrt", "abs", "exp", "log", "cos", "sin", "tan", "acos", "asin", "atan", "atan2"]:
                 replacables[str(nbr) + func] = str(nbr) + "*" + func
                 
         replacables["atan2*("] = "atan2("
@@ -148,8 +148,9 @@ class Equation:
             value = resolve(equation[start + 1:end], self.options)
             functions = {
                 "sqrt": lambda: math.sqrt(value),
-                "exp": lambda: round(math.exp(value)),
-                "log": lambda: round(math.log(value, math.e)),
+                "abs": lambda: abs(value),
+                "exp": lambda: math.exp(value),
+                "log": lambda: math.log(value, math.e),
                 "cos": lambda: cos(value, self.options["angles"]),
                 "sin": lambda: sin(value, self.options["angles"]),
                 "tan": lambda: tan(value, self.options["angles"]),
@@ -480,5 +481,6 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-equa = Equation("2+7*8cos(3)")
-print(equa.result())
+equa = Equation("")
+equa2 = Equation("")
+print(float(equa + equa2))
