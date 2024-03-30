@@ -200,7 +200,8 @@ class Equation:
     def __transformOther__(self, other)->tuple[str, dict[Option]]:
         otherEquation = ""
         options = self.options
-        if type(other) != Equation:
+        if not isinstance(other, Equation):
+            print("e")
             otherEquation = str(other)
         else:
             otherEquation = other.humanEquation
@@ -209,7 +210,7 @@ class Equation:
         return otherEquation, options
 
 
-    def __add__(self, other)->"Equation":
+    def __add__(self, other):
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation(self.humanEquation + "+" + otherEquation)
@@ -426,7 +427,6 @@ class Equation:
         return self.humanEquation
 
 
-
 class Function(Equation):
     def __init__(self, equation, name = "x", **args):
         self.name = name
@@ -468,6 +468,45 @@ class Function(Equation):
 
 
 
+class Sum(Function):
+    def __init__(self, start, end, equation, unknow = "x"):
+        self.start = start
+        self.end = end
+        super().__init__(equation, unknow)
+    
+
+    def resolve(self):
+        result = 0
+        for i in range(self.start, self.end + 1):
+            result += self.result(i)
+        return result
+
+    def toFunction(self):
+        equation = [self.equation for i in range(self.start, self.end + 1)]
+        return Function("+".join(equation))
+    
+    def toEquation(self, value):
+        equation = [self.equation.replace(self.name, str(value)) for i in range(self.start, self.end + 1)]
+        return Equation("+".join(equation))
+    
+
+    def __add__(self, other):
+        if type(other) != Sum:
+            return
+        
+        if other.start == self.start and other.end == self.end:
+            new = Sum(self.start, self.end, self.humanEquation + other.humanEquation)
+            new.setOption(self.options)
+            return new
+
+        new = Sum(self.humanEquation + "+" + otherEquation)
+        new.setOption(options)
+        return new
+
+
+    def __radd__(self, other)->"Equation":
+        return self.__add__(other)
+
 class EquaDiff(Function):
     def __init__(self, equation, name="x", **args):
         super().__init__(equation, name, **args)
@@ -481,6 +520,7 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-equa = Equation("")
-equa2 = Equation("")
-print(float(equa + equa2))
+sum = Sum(1, 10, "x")
+sum2 = Sum(1, 10, "x")
+s = sum + sum2
+print(s)
