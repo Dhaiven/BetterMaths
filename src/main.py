@@ -131,7 +131,6 @@ class Equation:
 
     def result(self)->float:
         equation = self.toProgramRedeable()
-        print(equation)
         result = 0
         if "(" in equation:
             start = equation.find("(")
