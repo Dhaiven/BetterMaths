@@ -112,7 +112,7 @@ class Equation:
             self.humanEquation = self.humanEquation.replace(froms, to)
         return self.humanEquation
     
-    def toProgramRedeable(self):
+    def toProgramRedeable(self)->str:
         self.toHumanRedeable()
 
         replacables = {
@@ -162,6 +162,16 @@ class Equation:
                     break
 
             return resolve(equation[:start] + str(value) + equation[end + 1:], self.options)
+        #Factorial
+        elif "!" in equation:
+            start = equation.find("!")
+            mustBeFactorial = ""
+            for i in range(start - 1, -1, -1):
+                if equation[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                    mustBeFactorial = equation[i] + mustBeFactorial
+                else:
+                    break
+            return resolve(equation[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + equation[start + 1:], self.options)
         elif "," in equation:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
@@ -183,7 +193,7 @@ class Equation:
         return result
     
 
-    def __transformOther__(self, other)->tuple["Equation", dict[Option]]:
+    def __transformOther__(self, other)->tuple[str, dict[Option]]:
         otherEquation = ""
         options = self.options
         if type(other) != Equation:
@@ -467,11 +477,5 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-equa = Equation("cos(1)", angles=Option.RADIAN)
-equa2 = Equation("5")
-
-print(equa == equa2)
-print(equa < equa2)
-print(equa <= equa2)
-print(equa > equa2)
-print(equa >= equa2)
+equa = Equation("7!")
+print(equa.result())
