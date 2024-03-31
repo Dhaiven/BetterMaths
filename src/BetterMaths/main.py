@@ -139,8 +139,44 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     Returns:
         The result of the resolved calculation.
     """
-    equation = Equation(calcul, args=options)
+    equation = Equation(calcul, args=options, mustCheck=False)
     return equation.result()
+
+
+
+functions = {
+    "sqrt": lambda value, options: math.sqrt(value),
+    "abs": lambda value, options: abs(value),
+    "exp": lambda value, options: math.exp(value),
+    "log": lambda value, options: math.log(value, math.e),
+    "cos": lambda value, options: cos(value, options["angles"]),
+    "sin": lambda value, options: sin(value, options["angles"]),
+    "tan": lambda value, options: tan(value, options["angles"]),
+    "acos": lambda value, options: acos(value, options["angles"]),
+    "asin": lambda value, options: asin(value, options["angles"]),
+    "atan": lambda value, options: atan(value, options["angles"]),
+    "atan2": lambda value, options: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), options["angles"]),
+}
+minNameLenght = math.inf
+maxNameLenght = -1
+for key in functions:
+    if len(key) < minNameLenght:
+        minNameLenght = len(key)
+    elif len(key) > maxNameLenght:
+        maxNameLenght = len(key)
+# Because last index in range is exclude
+maxNameLenght += 1
+
+
+
+programReadable = {
+    "^": "**",
+}
+for nbr in range(0, 10):
+    programReadable[str(nbr) + "("] = str(nbr) + "*("
+    for func in functions:
+        programReadable[str(nbr) + func] = str(nbr) + "*" + func
+programReadable["atan2*("] = "atan2("
 
 
 class Equation:
@@ -184,17 +220,21 @@ class Equation:
     """
     
     def __init__(self, equation: str, **args):
+        s = time.time()
         self.humanEquation = equation
-        self.toHumanRedeable()
         self.equation = equation
-        self.toProgramRedeable()
 
+        if args.get("mustCheck", True):
+            self.toHumanRedeable()
+            self.toProgramRedeable()
+    
         self.options = {}
         if "args" in args and len(args.get("args")) != 0:
             self.options = args.get("args")
         else:
             self.options["angles"] = args.get("angles", Option.DEGREES)
-    
+
+
     def setOption(self, options: dict):
         self.options = options
 
@@ -211,25 +251,13 @@ class Equation:
             self.humanEquation = self.humanEquation.replace(froms, to)
         return self.humanEquation
     
-    def toProgramRedeable(self)->str:
-        self.toHumanRedeable()
-
-        replacables = {
-            "^": "**",
-        }
-        for nbr in range(0, 10):
-            replacables[str(nbr) + "("] = str(nbr) + "*("
-            for func in ["sqrt", "abs", "exp", "log", "cos", "sin", "tan", "acos", "asin", "atan", "atan2"]:
-                replacables[str(nbr) + func] = str(nbr) + "*" + func
-                
-        replacables["atan2*("] = "atan2("
-
-        for froms, to in replacables.items():
+    def toProgramRedeable(self) -> str:
+        for froms, to in programReadable.items():
             self.equation = self.equation.replace(froms, to)
         return self.equation
 
     def result(self) -> float:
-        equation = self.toProgramRedeable()
+        equation = self.equation
         result = 0
         if "(" in equation:
             start = equation.find("(")
@@ -245,25 +273,14 @@ class Equation:
                         end = i
                         break
             value = resolve(equation[start + 1:end], self.options)
-            functions = {
-                "sqrt": lambda: math.sqrt(value),
-                "abs": lambda: abs(value),
-                "exp": lambda: math.exp(value),
-                "log": lambda: math.log(value, math.e),
-                "cos": lambda: cos(value, self.options["angles"]),
-                "sin": lambda: sin(value, self.options["angles"]),
-                "tan": lambda: tan(value, self.options["angles"]),
-                "acos": lambda: acos(value, self.options["angles"]),
-                "asin": lambda: asin(value, self.options["angles"]),
-                "atan": lambda: atan(value, self.options["angles"]),
-                "atan2": lambda: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), self.options["angles"]),
-            }
-            for key, func in functions.items():
-                if key == equation[start - len(key):start]:
-                    value = func()
-                    start -= len(key)
+            
+            for key in range(minNameLenght, maxNameLenght):
+                func = functions.get(equation[start - key:start])
+                if func != None:
+                    value = func(value, self.options)
+                    start -= key
                     break
-
+            
             return resolve(equation[:start] + str(value) + equation[end + 1:], self.options)
         #Factorial
         elif "!" in equation:
@@ -532,6 +549,7 @@ class Function(Equation):
         super().__init__(equation, **args)
 
         self.cachedResults = {}
+        self.hasUnknow = self.equation.find(name) != -1
     
     def toProgramRedeable(self):
         super().toProgramRedeable()
@@ -548,7 +566,10 @@ class Function(Equation):
         value = str(value)
         if value in self.cachedResults:
             return self.cachedResults[value]
-        r = resolve(self.equation.replace(self.name, value), self.options)
+        if self.hasUnknow:
+            r = resolve(self.equation.replace(self.name, value), self.options)
+        else:
+            r = resolve(self.equation, self.options)
         self.cachedResults[value] = r
         return r
     
@@ -576,18 +597,23 @@ class Sum(Function):
 
 
     def result(self):
-        result = 0
-        for i in range(self.start, self.end + 1):
-            result += super().result(i)
-        return result
+        if self.hasUnknow:
+            result = 0
+            for i in range(self.start, self.end + 1):
+                result += super().result(i)
+            return result
+        return self.toEquation().result()
 
     def toFunction(self) -> Function:
-        equation = [self.equation for i in range(self.start, self.end + 1)]
+        equation = [self.equation.replace(self.name, str(i)) for i in range(self.start, self.end + 1)]
         return Function("+".join(equation))
 
-    def toEquation(self, value: str) -> Equation:
-        equation = [self.equation.replace(self.name, str(value)) for i in range(self.start, self.end + 1)]
-        return Equation("+".join(equation))
+    def toEquation(self) -> Equation:
+        if self.hasUnknow:
+            equation = "+" .join([self.equation.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
+        else:
+            equation = str((self.end + 1) - self.start) + "*" + self.equation
+        return Equation(equation)
 
 
     def __add__(self, other):
@@ -669,12 +695,3 @@ class EquaDiff(Function):
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
         print(self.equation)
         return self.toHumanRedeable()
-
-a = Sum(6, 7, "1")
-b = Sum(9, 14, "1")
-
-print(sum(math.sqrt(n) for n in range(1, 100001)))
-startTime = time.time()
-print(float(Sum(1, 100000, "sqrt(x)")))
-
-print(time.time() - startTime)
