@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "BetterMath"
-version = "0.0.1"
+name = "BetterMaths"
+version = "0.0.3"
 authors = [
   { name="Dhaiven", email="bettermath.get.help@gmail.com" },
   { name="algorythmTTV", email="bettermath.get.help@gmail.com" },

@@ -78,7 +78,7 @@ def atan2(x: float, y: float, type: Option = Option.RADIAN)->float:
     return math.atan2(x, y)
 
 
-def resolve(calcul: str, options: dict[Option] = {}):
+def resolve(calcul: str, options: 'dict[Option]' = {}):
     equation = Equation(calcul, args=options)
     return equation.result()
 
@@ -187,7 +187,7 @@ class Equation:
         return result
     
 
-    def split(self, separator)->list["Equation"]:
+    def split(self, separator)->"list[Equation]":
         splitedEquations = self.humanEquation.split(separator)
         result = []
         for splitedEquation in splitedEquations:
@@ -197,7 +197,7 @@ class Equation:
         return result
     
 
-    def __transformOther__(self, other)->tuple[str, dict[Option]]:
+    def __transformOther__(self, other)->"tuple[str, dict[Option]]":
         otherEquation = ""
         options = self.options
         if type(other) != Equation:
@@ -313,7 +313,7 @@ class Equation:
         return new
     
 
-    def __divmod__(self, other) -> tuple[int, int]:
+    def __divmod__(self, other) -> 'tuple[int, int]':
         result = self.result()
         otherResult = 0
         if type(other) != Equation:
@@ -323,7 +323,7 @@ class Equation:
         return (result // otherResult, result % otherResult)
     
 
-    def __rdivmod__(self, other) -> tuple[int, int]:
+    def __rdivmod__(self, other) -> 'tuple[int, int]':
         result = self.result()
         otherResult = 0
         if type(other) != Equation:
