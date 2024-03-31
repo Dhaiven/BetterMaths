@@ -91,7 +91,6 @@ class Binomial:
         top=under-1
         top_total=under_total
         while top_total<(confidence+((100-confidence)/2))/100 and top<=self.n:
-            print(top,top_total)
             top_total+=self.result(top)
             top+=1
         return (under-1, top)
