@@ -66,7 +66,7 @@ class Binomial:
     def standardDeviation(self):
         """
         Calculates the standard variation of the binomial distribution.
-
+                   
         Returns:
             float: The standard variation of the binomial distribution.
         """
