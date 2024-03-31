@@ -1,7 +1,7 @@
 @echo off
 
-python3 -version >nul 2>&1 && (
-  start python3 -m build
+python -version >nul 2>&1 && (
+  start python -m build
 ) || (
   start python3.12 -m build
 )
