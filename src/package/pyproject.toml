@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BetterMaths"
-version = "0.0.3"
+version = "0.0.1"
 authors = [
   { name="Dhaiven", email="bettermath.get.help@gmail.com" },
   { name="algorythmTTV", email="bettermath.get.help@gmail.com" },
