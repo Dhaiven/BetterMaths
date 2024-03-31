@@ -83,14 +83,16 @@ class Binomial:
             raise ValueError("The confidence level must be between 0 and 100%")
         under=0
         under_total=0
-        while under_total <= ((100-confidence)/2)/100:
+        a=((100-confidence)/2)/100
+        while under_total <= a:
             under_total+=self.result(under)
             under+=1
             if under>self.n:
                 raise ValueError("Confidence too high!")
         top=under-1
         top_total=under_total
-        while top_total<(confidence+((100-confidence)/2))/100 and top<=self.n:
+        b=(confidence+((100-confidence)/2))/100 and top<=self.n
+        while top_total<b:
             top_total+=self.result(top)
             top+=1
         return (under-1, top)
