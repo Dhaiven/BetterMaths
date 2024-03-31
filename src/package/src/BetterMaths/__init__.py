@@ -468,6 +468,42 @@ class Function(Equation):
 
 
 
+
+class Sum(Function):
+    def __init__(self, start, end, equation, unknow = "x"):
+        self.start = start
+        self.end = end
+        super().__init__(equation, unknow)
+
+
+    def resolve(self):
+        result = 0
+        for i in range(self.start, self.end + 1):
+            result += self.result(i)
+        return result
+
+    def toFunction(self):
+        equation = [self.equation for i in range(self.start, self.end + 1)]
+        return Function("+".join(equation))
+
+    def toEquation(self, value):
+        equation = [self.equation.replace(self.name, str(value)) for i in range(self.start, self.end + 1)]
+        return Equation("+".join(equation))
+
+
+    def __add__(self, other):
+        if type(other) != Sum:
+            return
+
+        if other.start == self.start and other.end == self.end:
+            new = Sum(self.start, self.end, self.humanEquation + other.humanEquation)
+            new.setOption(self.options)
+            return new
+
+
+    def __radd__(self, other)->"Equation":
+        return self.__add__(other)
+
 class EquaDiff(Function):
     def __init__(self, equation, name="x", **args):
         super().__init__(equation, name, **args)
