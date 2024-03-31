@@ -21,10 +21,6 @@ def cos(x: float, type: Option = Option.RADIAN) -> float:
     if type == Option.DEGREES:
         x = math.radians(x)
     return math.cos(x)
-def cos(x: float, type: Option = Option.RADIAN)->float:
-    if type == Option.DEGREES:
-        x = math.radians(x)
-    return math.cos(x)
 
 
 def sin(x: float, type: Option = Option.RADIAN) -> float:
@@ -39,10 +35,6 @@ def sin(x: float, type: Option = Option.RADIAN) -> float:
         float: The sine of the angle.
 
     """
-    if type == Option.DEGREES:
-        x = math.radians(x)
-    return math.sin(x)
-def sin(x: float, type: Option = Option.RADIAN)->float:
     if type == Option.DEGREES:
         x = math.radians(x)
     return math.sin(x)
@@ -63,10 +55,6 @@ def tan(x: float, type: Option = Option.RADIAN) -> float:
     if type == Option.DEGREES:
         x = math.radians(x)
     return math.tan(x)
-def tan(x: float, type: Option = Option.RADIAN)->float:
-    if type == Option.DEGREES:
-        x = math.radians(x)
-    return math.tan(x)
 
 
 def acos(x: float, type: Option = Option.RADIAN) -> float:
@@ -81,10 +69,6 @@ def acos(x: float, type: Option = Option.RADIAN) -> float:
         float: The arc cosine of the input value.
     
     """
-    if type == Option.DEGREES:
-        x = math.radians(x)
-    return math.acos(x)
-def acos(x: float, type: Option = Option.RADIAN)->float:
     if type == Option.DEGREES:
         x = math.radians(x)
     return math.acos(x)
@@ -197,21 +181,7 @@ class Equation:
         __lt__(self, other) -> bool: Checks if the current equation is less than the other equation or value.
         __le__(self, other) -> bool: Checks if the current equation is less than or equal to the other equation or value.
     """
-
-    def __init__(self, equation: str, **args):
-        self.humanEquation = equation
-        self.toHumanRedeable()
-        self.equation = equation
-        self.toProgramRedeable()
-
-        self.options = {}
-        if "args" in args and len(args.get("args")) != 0:
-            self.options = args.get("args")
-        else:
-            self.options["angles"] = args.get("angles", Option.DEGREES)
     
-    # Rest of the code...
-class Equation:
     def __init__(self, equation: str, **args):
         self.humanEquation = equation
         self.toHumanRedeable()
