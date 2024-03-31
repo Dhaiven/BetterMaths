@@ -1,5 +1,7 @@
 **/__pycache__/
 **/dist/
 
+token.txt
+
 ### VS Code ###
 .vscode/

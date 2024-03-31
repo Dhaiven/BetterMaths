@@ -1,5 +1,6 @@
 import math
 import enum
+import time
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -227,7 +228,7 @@ class Equation:
             self.equation = self.equation.replace(froms, to)
         return self.equation
 
-    def result(self)->float:
+    def result(self) -> float:
         equation = self.toProgramRedeable()
         result = 0
         if "(" in equation:
@@ -547,7 +548,7 @@ class Function(Equation):
         value = str(value)
         if value in self.cachedResults:
             return self.cachedResults[value]
-        r = resolve(self.equation.replace(self.name, str(value)), self.options)
+        r = resolve(self.equation.replace(self.name, value), self.options)
         self.cachedResults[value] = r
         return r
     
@@ -574,29 +575,55 @@ class Sum(Function):
         super().__init__(equation, unknow)
 
 
-    def resolve(self):
+    def result(self):
         result = 0
         for i in range(self.start, self.end + 1):
-            result += self.result(i)
+            result += super().result(i)
         return result
 
-    def toFunction(self):
+    def toFunction(self) -> Function:
         equation = [self.equation for i in range(self.start, self.end + 1)]
         return Function("+".join(equation))
 
-    def toEquation(self, value):
+    def toEquation(self, value: str) -> Equation:
         equation = [self.equation.replace(self.name, str(value)) for i in range(self.start, self.end + 1)]
         return Equation("+".join(equation))
 
 
     def __add__(self, other):
         if type(other) != Sum:
-            return
+            raise BaseException("Cannot sum " + str(self) + " and " + str(other))
 
+        newEquation = None
         if other.start == self.start and other.end == self.end:
-            new = Sum(self.start, self.end, self.humanEquation + other.humanEquation)
-            new.setOption(self.options)
-            return new
+            newEquation = Sum(self.start, self.end, self.humanEquation + "+" + other.humanEquation)
+        elif other.humanEquation == self.humanEquation:
+            if other.start == self.end or other.end == self.start:
+                newEquation = Sum(min(self.start, other.start), max(self.end, other.end) + 1, self.humanEquation)
+            elif other.start - 1 == self.end or other.end + 1 == self.start:
+                newEquation = Sum(min(self.start, other.start), max(self.end, other.end), self.humanEquation)
+        else:
+            newStart = min(self.start, other.start)
+            newEnd = min(self.end, other.end)
+
+            result = None
+            if other.end > self.end:
+                result = other.end / self.end
+            else:
+                result = self.end / other.end
+
+            humanEquation = None
+            if other.start > self.start:
+                humanEquation = other.start / self.start
+            else:
+                humanEquation = self.start / other.start
+
+            newEquation = Sum(newStart, newEnd, str(humanEquation) + "+" + str(result))
+        
+        if newEquation != None and newEquation.result() == (self.result() + other.result()):
+            newEquation.setOption(self.options)
+            return newEquation
+        raise BaseException("Cannot sum " + str(self) + " and " + str(other))
 
 
     def __radd__(self, other)->"Equation":
@@ -642,3 +669,12 @@ class EquaDiff(Function):
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
         print(self.equation)
         return self.toHumanRedeable()
+
+a = Sum(6, 7, "1")
+b = Sum(9, 14, "1")
+
+print(sum(math.sqrt(n) for n in range(1, 100001)))
+startTime = time.time()
+print(float(Sum(1, 100000, "sqrt(x)")))
+
+print(time.time() - startTime)
