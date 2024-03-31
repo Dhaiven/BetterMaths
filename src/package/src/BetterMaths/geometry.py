@@ -1,4 +1,4 @@
-from main import *
+from __init__ import *
 import math
 
 class Angle:

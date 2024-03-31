@@ -1,4 +1,4 @@
-from main import Equation
+from __init__ import Equation
 import math
 
 class Binomial:

@@ -5,10 +5,10 @@
 > [!WARNING]
 > This module is in beta phase
 
-#### See the [Wiki](https://github.com/Dhaiven/BetterMath/wiki) for documentations
+#### See the [Wiki](https://github.com/Dhaiven/BetterMaths/wiki) for documentations
 
 ## Contribution
-BetterMath accepts community contributions!
+BetterMaths accepts community contributions!
 
 ## Authors
   - <img src="https://www.github.com/Dhaiven.png" width="3%" height="3%"/> [@Dhaiven](https://www.github.com/Dhaiven) for code
