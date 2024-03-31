@@ -178,7 +178,6 @@ for nbr in range(0, 10):
         programReadable[str(nbr) + func] = str(nbr) + "*" + func
 programReadable["atan2*("] = "atan2("
 
-
 class Equation:
     """
     Represents a mathematical equation.
@@ -220,7 +219,6 @@ class Equation:
     """
     
     def __init__(self, equation: str, **args):
-        s = time.time()
         self.humanEquation = equation
         self.equation = equation
 
@@ -255,9 +253,19 @@ class Equation:
         for froms, to in programReadable.items():
             self.equation = self.equation.replace(froms, to)
         return self.equation
-
+    
     def result(self) -> float:
-        equation = self.equation
+        return self.__resolve__(self.equation)
+    
+
+    def pow(self, equation: str):
+        values = equation.split("*")
+        result = 1
+        while len(values) > 0:
+            result *= self.__resolve__(values.pop())
+        return result
+
+    def __resolve__(self, equation: str) -> float:
         result = 0
         if "(" in equation:
             start = equation.find("(")
@@ -272,7 +280,7 @@ class Equation:
                     if nbrCanBePassed == 0:
                         end = i
                         break
-            value = resolve(equation[start + 1:end], self.options)
+            value = self.__resolve__(equation[start + 1:end])
             
             for key in range(minNameLenght, maxNameLenght):
                 func = functions.get(equation[start - key:start])
@@ -281,7 +289,7 @@ class Equation:
                     start -= key
                     break
             
-            return resolve(equation[:start] + str(value) + equation[end + 1:], self.options)
+            return self.__resolve__(equation[:start] + str(value) + equation[end + 1:])
         #Factorial
         elif "!" in equation:
             start = equation.find("!")
@@ -291,16 +299,19 @@ class Equation:
                     mustBeFactorial = equation[i] + mustBeFactorial
                 else:
                     break
-            return resolve(equation[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + equation[start + 1:], self.options)
+            return self.__resolve__(equation[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + equation[start + 1:])
         elif "," in equation:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
             return equation
-        else:
-            if "pi" in equation:
-                equation = equation.replace("pi", str(math.pi))
-            result = eval(equation)
-        return result
+        elif "*" in equation:
+            result += self.pow(equation)
+        elif "+" in equation:
+            result += sum(equation)
+
+        if "pi" in equation:
+            equation = equation.replace("pi", str(math.pi))
+        return float(result)
     
 
     def split(self, separator)->"list[Equation]":
