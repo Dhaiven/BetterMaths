@@ -1,7 +1,7 @@
 ![alt text](images/banner.png "Title")
 
 
-[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENCE)
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 > [!WARNING]
 > This module is in beta phase
 
