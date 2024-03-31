@@ -1,7 +1,7 @@
 ![alt text](images/banner.png "Title")
 
 
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENCE)
 > [!WARNING]
 > This module is in beta phase
 
