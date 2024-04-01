@@ -1,5 +1,6 @@
 import sympy
 import math
+from math import cos, acos, sin, asin
 
 class Vector:
     """
@@ -366,6 +367,20 @@ def pointInPlane(point: Point, plane: Plane) -> bool:
 
 def norm(u: Vector):
     return math.sqrt(u.x**2+u.y**2+u.z**2)
+
+
+def coordinatesScalar(u: Vector, v: Vector) -> float:
+    return u.x*v.x+u.y*v.y+u.z*v.z
+
+
+def normScalar(u: Vector, v: Vector) -> float:
+    return 0.5*(u.norm()**2+v.norm()**2)
+
+
+def findAngle(u: Vector, v: Vector, type: int = 0) -> float:
+    return acos(coordinatesScalar(u,v)/(u.norm()*v.norm()))
+
+
 
 all=[
     "Vector",
