@@ -346,20 +346,20 @@ class Equation:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
             return equation
-        elif "**" in equation:
-            result += self.power(equation)
-        elif "*" in equation:
-            result += self.pow(equation)
+        elif "+" in equation:
+            result += self.sum(equation)
+        elif "-" in equation:
+            result += self.sub(equation)
         elif "//" in equation:
             result += self.floordivide(equation)
         elif "/" in equation:
             result += self.divide(equation)
         elif "%" in equation:
             result += self.modulo(equation)
-        elif "+" in equation:
-            result += self.sum(equation)
-        elif "-" in equation:
-            result += self.sub(equation)
+        elif "**" in equation:
+            result += self.power(equation)
+        elif "*" in equation:
+            result += self.pow(equation)
         else:
             result += float(equation)
 
