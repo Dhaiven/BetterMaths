@@ -232,7 +232,7 @@ class Equation:
         self.humanEquation = equation
         
         self.equation = self.humanEquation
-        for froms, to in programReadable.items():
+        for froms, to in self.__getProgramReadable__().items():
             if froms in self.equation: # Just for optimisation
                 self.equation = self.equation.replace(froms, to)
 
@@ -252,6 +252,9 @@ class Equation:
     def toProgramRedeable(self) -> str:
         return self.equation
     
+    def __getProgramReadable__(self) -> dict:
+        return programReadable
+
     def result(self) -> float:
         try:
             return self.__resolve__(self.equation)
@@ -365,7 +368,7 @@ class Equation:
         return float(result)
     
 
-    def split(self, separator)->"list[Equation]":
+    def split(self, separator) -> "list[Equation]":
         splitedEquations = self.humanEquation.split(separator)
         result = []
         for splitedEquation in splitedEquations:
@@ -375,7 +378,7 @@ class Equation:
         return result
     
 
-    def __transformOther__(self, other)->"tuple[str, dict[Option]]":
+    def __transformOther__(self, other) -> "tuple[str, dict[Option]]":
         otherEquation = ""
         options = self.options
         if type(other) != Equation:
@@ -387,7 +390,7 @@ class Equation:
         return otherEquation, options
 
 
-    def __add__(self, other)->"Equation":
+    def __add__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation(self.humanEquation + "+" + otherEquation)
@@ -395,11 +398,11 @@ class Equation:
         return new
 
 
-    def __radd__(self, other)->"Equation":
+    def __radd__(self, other) -> "Equation":
         return self.__add__(other)
 
 
-    def __sub__(self, other)->"Equation":
+    def __sub__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
         
         new = Equation(self.humanEquation + "-(" + otherEquation + ")")
@@ -407,7 +410,7 @@ class Equation:
         return new
 
 
-    def __rsub__(self, other)->"Equation":
+    def __rsub__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
         
         new = Equation(otherEquation + "-(" + self.humanEquation + ")")
@@ -415,7 +418,7 @@ class Equation:
         return new
 
 
-    def __mul__(self, other)->"Equation":
+    def __mul__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + otherEquation + ")*(" + self.humanEquation + ")")
@@ -423,11 +426,11 @@ class Equation:
         return new
 
 
-    def __rmul__(self, other)->"Equation":
+    def __rmul__(self, other) -> "Equation":
         return self.__mul__(other)
 
 
-    def __pow__(self, other, mod: int = None)->"Equation":
+    def __pow__(self, other, mod: int = None) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + self.humanEquation + ")**(" + otherEquation + ")")
@@ -435,7 +438,7 @@ class Equation:
         return new
     
 
-    def __rpow__(self, other, mod: int = None)->"Equation":
+    def __rpow__(self, other, mod: int = None) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + otherEquation + ")**(" + self.humanEquation + ")")
@@ -443,7 +446,7 @@ class Equation:
         return new
 
 
-    def __floordiv__(self, other)->"Equation":
+    def __floordiv__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + self.humanEquation + ")//(" + otherEquation + ")")
@@ -451,7 +454,7 @@ class Equation:
         return new
 
 
-    def __rfloordiv__(self, other)->"Equation":
+    def __rfloordiv__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + otherEquation + ")//(" + self.humanEquation + ")")
@@ -459,7 +462,7 @@ class Equation:
         return new
 
 
-    def __truediv__(self, other)->"Equation":
+    def __truediv__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + self.humanEquation + ")/(" + otherEquation + ")")
@@ -467,7 +470,7 @@ class Equation:
         return new
 
 
-    def __rtruediv__(self, other)->"Equation":
+    def __rtruediv__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + otherEquation + ")/(" + self.humanEquation + ")")
@@ -475,7 +478,7 @@ class Equation:
         return new
 
 
-    def __mod__(self, other)->"Equation":
+    def __mod__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + self.humanEquation + ")%(" + otherEquation + ")")
@@ -483,7 +486,7 @@ class Equation:
         return new
 
 
-    def __rmod__(self, other)->"Equation":
+    def __rmod__(self, other) -> "Equation":
         otherEquation, options = self.__transformOther__(other)
 
         new = Equation("(" + otherEquation + ")%(" + self.humanEquation + ")")
@@ -511,13 +514,13 @@ class Equation:
         return (otherResult // result, otherResult % result)
 
 
-    def __neg__(self)->"Equation":
+    def __neg__(self) -> "Equation":
         new = Equation("-(" + self.humanEquation + ")")
         new.setOption(self.options)
         return new
     
 
-    def __eq__(self, other)->bool:
+    def __eq__(self, other) -> bool:
         otherResult = ""
         if type(other) != Equation:
             otherResult = resolve(str(other))
@@ -526,7 +529,7 @@ class Equation:
 
         return self.result() == otherResult
     
-    def __ne__(self, other)->bool:
+    def __ne__(self, other) -> bool:
         otherResult = ""
         if type(other) != Equation:
             otherResult = resolve(str(other))
@@ -535,7 +538,7 @@ class Equation:
 
         return self.result() != otherResult
     
-    def __lt__(self, other)->bool:
+    def __lt__(self, other) -> bool:
         otherResult = ""
         if type(other) != Equation:
             otherResult = resolve(str(other))
@@ -545,7 +548,7 @@ class Equation:
         return self.result() < otherResult
 
 
-    def __le__(self, other)->bool:
+    def __le__(self, other) -> bool:
         otherResult = ""
         if type(other) != Equation:
             otherResult = resolve(str(other))
@@ -555,7 +558,7 @@ class Equation:
         return self.result() <= otherResult
 
 
-    def __gt__(self, other)->bool:
+    def __gt__(self, other) -> bool:
         otherResult = ""
         if type(other) != Equation:
             otherResult = resolve(str(other))
@@ -565,7 +568,7 @@ class Equation:
         return self.result() > otherResult
 
 
-    def __ge__(self, other)->bool:
+    def __ge__(self, other) -> bool:
         otherResult = ""
         if type(other) != Equation:
             otherResult = resolve(str(other))
@@ -575,32 +578,32 @@ class Equation:
         return self.result() >= otherResult
     
 
-    def __float__(self)->float:
+    def __float__(self) -> float:
         return float(self.result())
 
 
-    def __int__(self)->int:
+    def __int__(self) -> int:
         return int(self.result())
 
 
-    def __abs__(self)->int:
+    def __abs__(self) -> int:
         return abs(self.result())
     
 
     #TODO: ndigits must be SupportsIndex
-    def __round__(self, ndigits: None = None)->int:
+    def __round__(self, ndigits: None = None) -> int:
         return round(self.result(), ndigits)
     
 
-    def __ceil__(self)->int:
+    def __ceil__(self) -> int:
         return math.ceil(self.result())
 
 
-    def __floor__(self)->int:
+    def __floor__(self) -> int:
         return math.floor(self.result())
 
 
-    def __str__(self)->str:
+    def __str__(self) -> str:
         return self.humanEquation
 
 
@@ -613,16 +616,12 @@ class Function(Equation):
         self.cachedResults = {}
         self.hasUnknow = self.equation.find(name) != -1
     
-    def toProgramRedeable(self):
-        super().toProgramRedeable()
-
-        replacables = {}
+    def __getProgramReadable__(self) -> dict:
+        replacables = super().__getProgramReadable__()
         for nbr in range(0, 10):
             replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
-        
-        for froms, to in replacables.items():
-            self.equation = self.equation.replace(froms, to)
-        return self.equation
+        return replacables
+
 
     def result(self, value: float) -> float:
         value = str(value)
@@ -635,7 +634,7 @@ class Function(Equation):
         self.cachedResults[value] = r
         return r
     
-    def prime(self)->"Function":
+    def prime(self) -> "Function":
         variable = self.equation.find(self.name)
         result = 1
         for i in range(variable, 0, -1):
@@ -659,11 +658,6 @@ class Sum(Function):
 
 
     def result(self):
-        if self.hasUnknow:
-            result = 0
-            for i in range(self.start, self.end + 1):
-                result += super().result(i)
-            return result
         return self.toEquation().result()
 
     def toFunction(self) -> Function:
@@ -714,7 +708,7 @@ class Sum(Function):
         raise BaseException("Cannot sum " + str(self) + " and " + str(other))
 
 
-    def __radd__(self, other)->"Equation":
+    def __radd__(self, other) -> "Equation":
         return self.__add__(other)
 
 class EquaDiff(Function):
@@ -757,7 +751,3 @@ class EquaDiff(Function):
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
         print(self.equation)
         return self.toHumanRedeable()
-
-
-print(eval("2**3**4"))
-print(Equation("2**3**4").result())
