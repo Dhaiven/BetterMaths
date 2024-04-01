@@ -16,6 +16,8 @@ class Sequence:
     - geometricSequence(n, k): Generates a geometric sequence.
     - term(n): Returns the nth term of the sequence.
     - arithmeticSum(p, n): Calculates the sum of an arithmetic sequence.
+    - geometricSUm(p, n): Calculates the sum of a geometric sequence.
+    - infLimit(): Returns the limit of the sequence when n tends to infinity
 
     """
 
