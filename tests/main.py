@@ -1,28 +1,25 @@
 import time
 from BetterMaths import *
+import timeit
 
-def compareEvalAndEquation(equation, nbrOfExecution):
+def compareEvalAndEquation(equation, nbrOfExecution = 10000):
     if eval(equation) != Equation(equation).result():
         raise Exception("The result of " + equation + " is " + str(eval(equation)) + " for eval but is " + str(Equation(equation).result()) + " for Equation")
 
-    evalTime = time.time()
-    for i in range(nbrOfExecution):
-        eval(equation)
-    evalTime = time.time() - evalTime
+    t = timeit.Timer(lambda: eval(equation))
+    evalTime = t.timeit(nbrOfExecution)
 
-    equationTime = time.time()
-    for i in range(nbrOfExecution):
-        Equation(equation).result()
-    equationTime = time.time() - equationTime
+    t = timeit.Timer(lambda: Equation(equation).result())
+    equationTime = t.timeit(nbrOfExecution)
 
     if equationTime >= evalTime + 0.1:
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(equationTime) + " with Equation")
+    print(equation + " executed in " + str(evalTime - equationTime) + " less eval")
     
 
 compareEvalAndEquation("2**2", 10000)
-compareEvalAndEquation("2**3**4", 10000)
-compareEvalAndEquation("2*2", 10000)
 compareEvalAndEquation("2*4*7", 10000)
+compareEvalAndEquation("2**3**4", 10000)
 
 compareEvalAndEquation("7//5", 10000)
 compareEvalAndEquation("7//2//3", 10000)
@@ -61,6 +58,6 @@ def compareEvalAndSum(start, end, equation: str, nbrOfExecution):
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Sum")
 
 
-compareEvalAndSum(1, 10, "2", 10000)
-compareEvalAndSum(1, 10, "2x", 10000)
-compareEvalAndSum(1, 10, "2x+7", 10000)
+compareEvalAndSum(1, 10, "2", 1000)
+compareEvalAndSum(1, 10, "2x", 1000)
+compareEvalAndSum(1, 10, "2x+7", 1000)

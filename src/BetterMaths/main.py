@@ -241,9 +241,9 @@ class Equation:
     """
     
     def __init__(self, equation: str, **args):
-        for froms, to in humanReadable.items():
+        for froms in humanReadable:
             if froms in equation: # Just for optimisation
-                equation = equation.replace(froms, to)
+                equation = equation.replace(froms, humanReadable.get(froms))
         #If we have +number at the beginning
         while equation.startswith("+"):
             equation = equation[1:]
@@ -292,7 +292,7 @@ class Equation:
     
     def pow(self, equation: str) -> float:
         values = equation.split("*")
-        result = 1
+        result = self.__resolve__(values.pop())
         while len(values) > 0:
             result *= self.__resolve__(values.pop())
         return result
