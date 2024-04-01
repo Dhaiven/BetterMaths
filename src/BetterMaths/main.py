@@ -219,13 +219,24 @@ class Equation:
     """
     
     def __init__(self, equation: str, **args):
-        self.humanEquation = equation
-        self.equation = equation
+        replacables = {
+            " ": "",
+            "++": "+",
+            "+-": "-",
+            "--": "-",
+            "--": "+",
+        }
 
-        if args.get("mustCheck", True):
-            self.toHumanRedeable()
-            self.toProgramRedeable()
-    
+        for froms, to in replacables.items():
+            if froms in equation: # Just for optimisation
+                equation = equation.replace(froms, to)
+        self.humanEquation = equation
+        
+        self.equation = self.humanEquation
+        for froms, to in programReadable.items():
+            if froms in self.equation: # Just for optimisation
+                self.equation = self.equation.replace(froms, to)
+
         self.options = {}
         if "args" in args and len(args.get("args")) != 0:
             self.options = args.get("args")
@@ -236,34 +247,35 @@ class Equation:
     def setOption(self, options: dict):
         self.options = options
 
-    def toHumanRedeable(self):
-        replacables = {
-            " ": "",
-            "++": "+",
-            "+-": "-",
-            "--": "-",
-            "--": "+",
-        }
-
-        for froms, to in replacables.items():
-            self.humanEquation = self.humanEquation.replace(froms, to)
+    def toHumanRedeable(self) -> str:
         return self.humanEquation
     
     def toProgramRedeable(self) -> str:
-        for froms, to in programReadable.items():
-            self.equation = self.equation.replace(froms, to)
         return self.equation
     
     def result(self) -> float:
         return self.__resolve__(self.equation)
     
-
-    def pow(self, equation: str):
+    def sum(self, equation: str) -> float:
+        values = equation.split("+")
+        result = 0
+        while len(values) > 0:
+            result += self.__resolve__(values.pop())
+        return result
+    
+    def sub(self, equation: str):
+        return eval(equation)
+    
+    def pow(self, equation: str) -> float:
         values = equation.split("*")
         result = 1
         while len(values) > 0:
             result *= self.__resolve__(values.pop())
         return result
+    
+    def divide(self, equation: str) -> float:
+        values = equation.split("/", 1)
+        return self.__resolve__(values.pop()) / self.__resolve__(values.pop())
 
     def __resolve__(self, equation: str) -> float:
         result = 0
@@ -306,8 +318,15 @@ class Equation:
             return equation
         elif "*" in equation:
             result += self.pow(equation)
+        elif "/" in equation:
+            result += self.divide(equation)
         elif "+" in equation:
-            result += sum(equation)
+            result += self.sum(equation)
+        elif "-" in equation:
+            result += self.sub(equation)
+        else:
+            print(equation)
+            result += float(equation)
 
         if "pi" in equation:
             equation = equation.replace("pi", str(math.pi))
@@ -706,3 +725,8 @@ class EquaDiff(Function):
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
         print(self.equation)
         return self.toHumanRedeable()
+
+e = "--exp(0)-7"
+
+
+print(Equation(e).result())
