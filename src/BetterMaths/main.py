@@ -281,13 +281,27 @@ class Equation:
         result = self.__resolve__(values.pop(-1))
         while len(values) > 0:
             result = self.__resolve__(values.pop(-1)) ** result
-        return float(result)
+        return result
     
     def divide(self, equation: str) -> float:
         values = equation.split("/")
         result = self.__resolve__(values.pop(0))
         while len(values) > 0:
             result /= self.__resolve__(values.pop(0))
+        return result
+    
+    def floordivide(self, equation: str) -> float:
+        values = equation.split("//")
+        result = self.__resolve__(values.pop(0))
+        while len(values) > 0:
+            result //= self.__resolve__(values.pop(0))
+        return result
+    
+    def modulo(self, equation: str) -> float:
+        values = equation.split("%")
+        result = self.__resolve__(values.pop(0))
+        while len(values) > 0:
+            result %= self.__resolve__(values.pop(0))
         return result
 
     def __resolve__(self, equation: str) -> float:
@@ -333,8 +347,12 @@ class Equation:
             result += self.power(equation)
         elif "*" in equation:
             result += self.pow(equation)
+        elif "//" in equation:
+            result += self.floordivide(equation)
         elif "/" in equation:
             result += self.divide(equation)
+        elif "%" in equation:
+            result += self.modulo(equation)
         elif "+" in equation:
             result += self.sum(equation)
         elif "-" in equation:

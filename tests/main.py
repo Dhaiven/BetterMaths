@@ -19,10 +19,17 @@ def compareEvalAndEquation(equation, nbrOfExecution):
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(equationTime) + " with Equation")
     
 
-compareEvalAndEquation("2+2", 10000)
-compareEvalAndEquation("2*2", 10000)
-compareEvalAndEquation("2*4*7", 10000)
-compareEvalAndEquation("2/2", 10000)
-compareEvalAndEquation("21/2/3", 10000)
 compareEvalAndEquation("2**2", 10000)
 compareEvalAndEquation("2**3**4", 10000)
+compareEvalAndEquation("2*2", 10000)
+compareEvalAndEquation("2*4*7", 10000)
+
+compareEvalAndEquation("7//5", 10000)
+compareEvalAndEquation("7//2//3", 10000)
+compareEvalAndEquation("2/2", 10000)
+compareEvalAndEquation("21/2/3", 10000)
+compareEvalAndEquation("7%5", 10000)
+compareEvalAndEquation("7%2%3", 10000)
+
+compareEvalAndEquation("2+2", 10000)
+compareEvalAndEquation("2+2+7", 10000)
