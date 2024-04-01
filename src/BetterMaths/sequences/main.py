@@ -246,3 +246,7 @@ class Sequence:
     
     def __repr__(self):
         return f"Sequence({self.initial_term}, {self.expression}, {self.type})"
+
+all=[
+    "Sequence"
+]
