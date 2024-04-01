@@ -1,9 +1,18 @@
 import sympy
+import math
 
 class Vector:
     """
     Represents a vector in three-dimensional space.
     """
+
+    def __add__(self, other):
+        return Vector(self.x+other.x,self.y+other.y,self.z+other.z)
+
+
+    def __sub__(self, other):
+        return Vector(self.x-other.x,self.y-other.y,self.z-other.z)
+
 
     def __init__(self, x, y, z, plane=None) -> None:
         """
@@ -65,6 +74,10 @@ class Vector:
             Vector: The projected vector.
         """
         return inPlane(self, plane)
+    
+    
+    def norm(self):
+        return norm(self)
 
 
 class Point:
@@ -350,6 +363,10 @@ def pointInPlane(point: Point, plane: Plane) -> bool:
         return True
     return False
 
+
+def norm(u: Vector):
+    return math.sqrt(u.x**2+u.y**2+u.z**2)
+
 all=[
     "Vector",
     "Point",
@@ -364,5 +381,6 @@ all=[
     "solveSystem3",
     "pointsVector",
     "pointInLine",
-    "pointInPlane"
+    "pointInPlane",
+    "norm"
 ]
