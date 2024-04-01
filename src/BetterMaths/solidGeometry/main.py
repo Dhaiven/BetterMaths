@@ -119,12 +119,13 @@ class Plane:
 
     """
 
-    def __init__(self, point: Point, i: Vector, j: Vector) -> None:
+    def __init__(self, point: Point, i: Vector, j: Vector, normal=None) -> None:
         if collinear(i, j)[0]:
             raise ValueError("i and j are collinear!")
         self.origin=point
         self.i = i
         self.j = j
+        self.normal=normal
     
     def __repr__(self) -> str:
         i_coords = f"i: {self.i.x},{self.i.y},{self.i.z}"
@@ -183,6 +184,12 @@ class CooordinateSystem:
         j_coords = f"j: {self.j.x},{self.j.y},{self.j.z}"
         k_coords = f"k: {self.k.x},{self.k.y},{self.k.z}"
         return f"{i_coords}\n{j_coords}\n{k_coords}"
+    
+
+    def isOrthonormal(self):
+        if normScalar(self.i,self.j)==normScalar(self.i,self.k)==normScalar(self.j,self.k)==0 and self.i.norm()==self.j.norm()==self.k.norm():
+            return True
+        return False
 
 
 def collinear(u: Vector, v: Vector) -> "tuple[bool,object]":
@@ -374,13 +381,53 @@ def coordinatesScalar(u: Vector, v: Vector) -> float:
 
 
 def normScalar(u: Vector, v: Vector) -> float:
-    return 0.5*(u.norm()**2+v.norm()**2)
+    return round(0.5*(u.norm()**2+v.norm()**2-(u-v).norm()**2))
 
 
 def findAngle(u: Vector, v: Vector, type: int = 0) -> float:
     return acos(coordinatesScalar(u,v)/(u.norm()*v.norm()))
 
 
+def orthogonalVectors(u: Vector, v: Vector) -> bool:
+    if coordinatesScalar(u,v)==0:
+        return True
+    return False
+
+def orthogonalLines(d: Line, D: Line) -> bool:
+    if orthogonalVectors(d.vector,D.vector):
+        return True
+    return False
+
+def orthogonalLinePlane(d: Line, P: Plane) -> bool:
+    if orthogonalVectors(d.vector,P.i) and orthogonalVectors(d.vector,P.j):
+        return True
+    return False
+
+
+def normalVector(n: Vector, P: Plane) -> bool:
+    if orthogonalVectors(n,P.i)==orthogonalVectors(n,P.j)==0:
+        P.normal=n
+        return True
+    return False
+
+
+def perpendicularPlanes(P1: Plane,P2: Plane) -> bool:
+    if P1.normal==None:
+        raise ValueError("You did not specified a normal vector for the first plane! Use normalVector() to add one.")
+    elif P2.normal==None:
+        raise ValueError("You did not specified a normal vector for the second plane! Use normalVector() to add one.")
+    if orthogonalVectors(P1.normal,P2.normal):
+        return True
+    return False
+
+
+u=Vector(-2,-2,1)
+print(u.norm())
+v=Vector(3,0,-3)
+print(v.norm())
+print(coordinatesScalar(u,v))
+print(normScalar(u,v))
+print(findAngle(u,v))
 
 all=[
     "Vector",
