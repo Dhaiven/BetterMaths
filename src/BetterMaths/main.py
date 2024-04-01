@@ -144,10 +144,13 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
 
 
 functions = {
-    "sqrt": lambda value, options: math.sqrt(value),
     "abs": lambda value, options: abs(value),
+    "floor": lambda value, options: math.floor(value),
+    "cail": lambda value, options: math.ceil(value),
+    "sqrt": lambda value, options: math.sqrt(value),
     "exp": lambda value, options: math.exp(value),
-    "log": lambda value, options: math.log(value, math.e),
+    "log": lambda value, options: math.log(value, 10),
+    "ln": lambda value, options: math.log(value, math.e),
     "cos": lambda value, options: cos(value, options["angles"]),
     "sin": lambda value, options: sin(value, options["angles"]),
     "tan": lambda value, options: tan(value, options["angles"]),
@@ -155,6 +158,15 @@ functions = {
     "asin": lambda value, options: asin(value, options["angles"]),
     "atan": lambda value, options: atan(value, options["angles"]),
     "atan2": lambda value, options: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), options["angles"]),
+    "cosh": lambda value, options: math.cosh(value),
+    "sinh": lambda value, options: math.sinh(value),
+    "tanh": lambda value, options: math.tanh(value),
+    "lcm": lambda value, options: math.lcm(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
+    "lcm": lambda value, options: math.lcm(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
+    "gcd": lambda value, options: math.gcd(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
+    "gcf": lambda value, options: math.gcd(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
+    "min": lambda value, options: min(str(value).split(",")),
+    "max": lambda value, options: max(str(value).split(",")),
 }
 minNameLenght = math.inf
 maxNameLenght = -1
@@ -178,11 +190,15 @@ humanReadable = {
 
 programReadable = {
     "^": "**",
+    ")(": ")*("
 }
 for nbr in range(0, 10):
     programReadable[str(nbr) + "("] = str(nbr) + "*("
     for func in functions:
         programReadable[str(nbr) + func] = str(nbr) + "*" + func
+for func in functions:
+        programReadable[")" + func] = ")*" + func
+
 programReadable["atan2*("] = "atan2("
 
 class Equation:
@@ -324,7 +340,12 @@ class Equation:
                     if nbrCanBePassed == 0:
                         end = i
                         break
-            value = self.__resolve__(equation[start + 1:end])
+
+            inParenthese = equation[start + 1:end]
+            if "," in inParenthese:
+                value = ",".join([str(self.__resolve__(v)) for v in inParenthese.split(",")])
+            else:
+                value = self.__resolve__(inParenthese)
             
             for key in range(minNameLenght, maxNameLenght):
                 func = functions.get(equation[start - key:start])
@@ -332,7 +353,7 @@ class Equation:
                     value = func(value, self.options)
                     start -= key
                     break
-            
+
             return self.__resolve__(equation[:start] + str(value) + equation[end + 1:])
         #Factorial
         elif "!" in equation:
@@ -344,10 +365,6 @@ class Equation:
                 else:
                     break
             return self.__resolve__(equation[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + equation[start + 1:])
-        elif "," in equation:
-            if "pi" in equation:
-                equation = equation.replace("pi", str(math.pi))
-            return equation
         elif "+" in equation:
             return self.sum(equation)
         elif "-" in equation:
@@ -365,6 +382,10 @@ class Equation:
 
         if "pi" in equation:
             equation = equation.replace("pi", str(math.pi))
+        if "tau" in equation:
+            equation = equation.replace("tau", str(math.tau))
+        if "e" in equation:
+            equation = equation.replace("e", str(math.e))
         return float(equation)
     
 
