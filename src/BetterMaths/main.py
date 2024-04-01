@@ -146,7 +146,7 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
 functions = {
     "abs": lambda value, options: abs(value),
     "floor": lambda value, options: math.floor(value),
-    "cail": lambda value, options: math.ceil(value),
+    "ceil": lambda value, options: math.ceil(value),
     "sqrt": lambda value, options: math.sqrt(value),
     "exp": lambda value, options: math.exp(value),
     "log": lambda value, options: math.log(value, 10),
@@ -161,10 +161,9 @@ functions = {
     "cosh": lambda value, options: math.cosh(value),
     "sinh": lambda value, options: math.sinh(value),
     "tanh": lambda value, options: math.tanh(value),
-    "lcm": lambda value, options: math.lcm(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
-    "lcm": lambda value, options: math.lcm(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
-    "gcd": lambda value, options: math.gcd(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
-    "gcf": lambda value, options: math.gcd(float(str(value).split(",")[0]), float(str(value).split(",")[1])),
+    "lcm": lambda value, options: math.lcm(*list(map(round, map(float, str(value).split(","))))),
+    "gcd": lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(","))))),
+    "gcf": lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(","))))),
     "min": lambda value, options: min(str(value).split(",")),
     "max": lambda value, options: max(str(value).split(",")),
 }
@@ -770,5 +769,4 @@ class EquaDiff(Function):
         a = resolve(a, self.options)
         b = self.equation.split("+")[1]
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
-        print(self.equation)
         return self.toHumanRedeable()
