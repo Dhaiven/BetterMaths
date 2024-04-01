@@ -168,6 +168,14 @@ maxNameLenght += 1
 
 
 
+humanReadable = {
+    " ": "",
+    "++": "+",
+    "+-": "-",
+    "-+": "-",
+    "--": "+",
+}
+
 programReadable = {
     "^": "**",
 }
@@ -218,17 +226,12 @@ class Equation:
     """
     
     def __init__(self, equation: str, **args):
-        replacables = {
-            " ": "",
-            "++": "+",
-            "+-": "-",
-            "--": "-",
-            "--": "+",
-        }
-
-        for froms, to in replacables.items():
+        for froms, to in humanReadable.items():
             if froms in equation: # Just for optimisation
                 equation = equation.replace(froms, to)
+        #If we have +number at the beginning
+        while equation.startswith("+"):
+            equation = equation[1:]
         self.humanEquation = equation
         
         self.equation = self.humanEquation
@@ -281,9 +284,9 @@ class Equation:
     
     def power(self, equation: str) -> float:
         values = equation.split("**")
-        result = self.__resolve__(values.pop(-1))
+        result = self.__resolve__(values.pop())
         while len(values) > 0:
-            result = self.__resolve__(values.pop(-1)) ** result
+            result = self.__resolve__(values.pop()) ** result
         return result
     
     def divide(self, equation: str) -> float:
@@ -308,7 +311,6 @@ class Equation:
         return result
 
     def __resolve__(self, equation: str) -> float:
-        result = 0
         if "(" in equation:
             start = equation.find("(")
             nbrCanBePassed = 1
@@ -347,25 +349,23 @@ class Equation:
                 equation = equation.replace("pi", str(math.pi))
             return equation
         elif "+" in equation:
-            result += self.sum(equation)
+            return self.sum(equation)
         elif "-" in equation:
-            result += self.sub(equation)
+            return self.sub(equation)
         elif "//" in equation:
-            result += self.floordivide(equation)
+            return self.floordivide(equation)
         elif "/" in equation:
-            result += self.divide(equation)
+            return self.divide(equation)
         elif "%" in equation:
-            result += self.modulo(equation)
+            return self.modulo(equation)
         elif "**" in equation:
-            result += self.power(equation)
+            return self.power(equation)
         elif "*" in equation:
-            result += self.pow(equation)
-        else:
-            result += float(equation)
+            return self.pow(equation)
 
         if "pi" in equation:
             equation = equation.replace("pi", str(math.pi))
-        return float(result)
+        return float(equation)
     
 
     def split(self, separator) -> "list[Equation]":

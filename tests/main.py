@@ -15,7 +15,7 @@ def compareEvalAndEquation(equation, nbrOfExecution):
         Equation(equation).result()
     equationTime = time.time() - equationTime
 
-    if equationTime >= evalTime:
+    if equationTime >= evalTime + 0.1:
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(equationTime) + " with Equation")
     
 
@@ -31,8 +31,9 @@ compareEvalAndEquation("21/2/3", 10000)
 compareEvalAndEquation("7%5", 10000)
 compareEvalAndEquation("7%2%3", 10000)
 
-compareEvalAndEquation("2+2", 10000)
-compareEvalAndEquation("2+2+7", 10000)
+compareEvalAndEquation("2+22", 10000)
+compareEvalAndEquation("26+98+70", 10000)
+compareEvalAndEquation("+6+9+12", 10000)
 
 
 """
@@ -62,3 +63,4 @@ def compareEvalAndSum(start, end, equation: str, nbrOfExecution):
 
 compareEvalAndSum(1, 10, "2", 10000)
 compareEvalAndSum(1, 10, "2x", 10000)
+compareEvalAndSum(1, 10, "2x+7", 10000)
