@@ -220,7 +220,7 @@ class Sequence:
     
     def infLimit(self):
         """
-        Returns the limit of the sequence when n tends to infinity.
+        Returns the limit of the sequence when n tends to infinity (for now, only do smth with arithmetic and geometric).
 
         Returns:
         - The limit of the sequence (if it exists, else None).
