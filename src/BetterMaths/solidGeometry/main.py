@@ -18,6 +18,9 @@ class Vector:
 
     def coplanar(self,u,v) -> bool:
         return coplanar(self,u,v)
+    
+    def inPlane(self,plane) -> "Vector":
+        return inPlane(self,plane)
 
 
 class Plane:
@@ -74,12 +77,3 @@ def solveSystem3(eq1, eq2, eq3):
     a, b, c = sympy.symbols('a b c')
     solutions = sympy.solve((eq1, eq2, eq3), (a, b, c))
     return solutions
-
-
-u=Vector(-1,0,3)
-v=Vector(2,-1,1)
-w=Vector(1,7,3)
-print(coplanar(u,v,w))
-plan=Plane(u,v,w)
-s=Vector(-9,-4,0)
-print(inPlane(s,plan))
