@@ -1,7 +1,15 @@
 class Sequence:
-    def __init__(self, initial_term, expression):
+    
+    
+    def __init__(self, initial_term, expression, type=0):
         self.initial_term = initial_term
         self.expression = expression
+        if self.isArithmetic() != False:
+            self.type=1
+        elif self.isGeometric() !=False:
+            self.type=2
+        else:
+            self.type=type
     
     def isArithmetic(self):
         """
@@ -18,8 +26,8 @@ class Sequence:
         for i in range(1, len(sequence)):
             if sequence[i] - sequence[i - 1] != difference:
                 return False
-        return True
-    
+        return (True, difference)
+
     def isGeometric(self):
         """
         Checks if the sequence is geometric.
@@ -35,7 +43,9 @@ class Sequence:
         for i in range(1, len(sequence)):
             if sequence[i] / sequence[i - 1] != ratio:
                 return False
-        return (True,ratio)
+        return (True, ratio)
+
+
     
     def sequence(self,n) -> "list[int]":
         """
@@ -69,8 +79,23 @@ class Sequence:
             elif sequence[i] < sequence[i - 1]:
                 variation = 'decreasing'
         return variation
-        
 
-caca=Sequence(23, "n*2")
-print(caca.isArithmetic())
-print(caca.isGeometric())
+    def artithmeticSequence(self, n: int , k: int) -> "list[int]":
+            if self.type != 1:
+                raise ValueError("The sequence is not arithmetic!")
+            dif=self.isArithmetic()[1]
+            sequence = [self.initial_term+n*dif]
+            for i in range(k):
+                term = sequence[-1]+dif
+                sequence.append(term)
+            return sequence
+    
+    def geometricSequence(self, n: int, k: int) -> "list[int]":
+        if self.type != 2:
+            raise ValueError("The sequence is not geometric!")
+        ratio=self.isGeometric()[1]
+        sequence = [self.initial_term*ratio**n]
+        for i in range(k):
+            term = sequence[-1]*ratio
+            sequence.append(term)
+        return sequence
