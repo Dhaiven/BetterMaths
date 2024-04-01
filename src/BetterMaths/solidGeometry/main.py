@@ -95,6 +95,65 @@ class Plane:
         return f"{i_coords}\n{j_coords}\n{k_coords}"
 
 
+class Point:
+    """
+    Represents a point in three-dimensional space.
+
+    Attributes:
+        x (float): The x-coordinate of the point.
+        y (float): The y-coordinate of the point.
+        z (float): The z-coordinate of the point.
+    """
+
+    def __init__(self, x, y, z, plane=None):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.plane=plane
+    
+    
+    def vector(self, point) -> Vector:
+        return pointsVector(self,point)
+
+
+class Line:
+    """
+    Represents a line in three-dimensional space.
+    
+    Attributes:
+        point (Point): A point on the line.
+        vector (Vector): The direction vector of the line.
+    """
+    
+    def __init__(self, point: Point, vector: Vector) -> None:
+        self.point = point
+        self.vector = vector
+    
+    
+    def point(self,point: Point) -> bool:
+        return pointInLine(point, self)
+
+
+class CooordinateSystem:
+    """
+    Represents a coordinate system in three-dimensional space.
+    
+    Attributes:
+        point (Point): The origin point of the coordinate system.
+        i (Vector): The first basis vector of the coordinate system.
+        j (Vector): The second basis vector of the coordinate system.
+        k (Vector): The third basis vector of the coordinate system.
+    """
+
+    def __init__(self, point: Point, i: Vector, j: Vector, k: Vector):
+        if coplanar(i,j,k):
+            raise ValueError("i, j and k must not be coplanar!")
+        self.point=point
+        self.i=i
+        self.j=j
+        self.k=k
+
+
 def collinear(u: Vector, v: Vector) -> "tuple[bool,object]":
     """
     Check if two vectors are collinear.
@@ -156,6 +215,23 @@ def inPlane(u: Vector, plane: Plane):
     return False
 
 
+def solveSystem1(eq1, eq2, eq3):
+    """
+    Solves a system of equations with 1 unknown.
+
+    Parameters:
+    eq1 (sympy.Expr): The first equation.
+    eq2 (sympy.Expr): The second equation.
+    eq3 (sympy.Expr): The third equation.
+
+    Returns:
+    dict: A dictionary containing the solutions for the unknown.
+    """
+    a = sympy.symbols('a')
+    solutions = sympy.solve((eq1, eq2, eq3), (a))
+    return solutions
+
+
 def solveSystem2(eq1, eq2, eq3):
     """
     Solves a system of equations with 2 unknowns.
@@ -172,6 +248,7 @@ def solveSystem2(eq1, eq2, eq3):
     solutions = sympy.solve((eq1, eq2, eq3), (a, b))
     return solutions
 
+
 def solveSystem3(eq1, eq2, eq3):
     """
     Solves a system of equations with three unknowns.
@@ -187,3 +264,46 @@ def solveSystem3(eq1, eq2, eq3):
     a, b, c = sympy.symbols('a b c')
     solutions = sympy.solve((eq1, eq2, eq3), (a, b, c))
     return solutions
+
+
+def pointsVector(pointA: Point, pointB: Point):
+    """
+    Calculates the vector between two points.
+
+    Args:
+        pointA (Point): The starting point.
+        pointB (Point): The ending point.
+
+    Returns:
+        Vector: The vector between pointA and pointB.
+    """
+    x = pointB.x - pointA.x
+    y = pointB.y - pointB.y
+    z = pointB.z - pointB.z
+    return Vector(x, y, z)
+
+
+def pointInLine(point: Point, line: Line) -> bool:
+    """
+    Check if a point lies on a line.
+
+    Args:
+        point (Point): The point to check.
+        line (Line): The line to check.
+
+    Returns:
+        bool: True if the point lies on the line, False otherwise.
+    """
+    xp = point.x
+    yp = point.y
+    zp = point.z
+    xl = line.vector.x
+    yl = line.vector.y
+    zl = line.vector.z
+    xlp = line.point.x
+    ylp = line.point.y
+    zlp = line.point.z
+    solutions = solveSystem1(f"{xlp}+{xl}*a-{xp}", f"{ylp}+{yl}*a-{yp}", f"{zlp}+{zl}*a-{zp}")
+    if solutions != {}:
+        return True
+    return False
