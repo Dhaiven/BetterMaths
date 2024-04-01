@@ -5,6 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "BetterMaths"
 version = "0.0.2"
+dependencies = [
+  "sympy"
+]
 authors = [
   { name="Dhaiven", email="bettermath.get.help@gmail.com" },
   { name="algorythmTTV", email="bettermath.get.help@gmail.com" },
