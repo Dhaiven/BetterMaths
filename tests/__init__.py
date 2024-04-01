@@ -10,8 +10,15 @@ print("Start test...")
 testFiles = [
     "main.py"
 ]
+errors = []
 
 for file in testFiles:
-    subprocess.run(["python", "tests/" + file])
+    outcome = subprocess.run(["python", "tests/" + file], check=False, capture_output=True)
+    if outcome.returncode != 0:
+        errors.append(outcome)
 
-print("All test are good!")
+if len(errors) == 0:
+    print("All test are good!")
+else:
+    for error in errors:
+        print(outcome.stderr.decode("utf-8"))

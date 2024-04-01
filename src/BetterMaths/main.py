@@ -1,6 +1,5 @@
 import math
 import enum
-import time
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -254,7 +253,11 @@ class Equation:
         return self.equation
     
     def result(self) -> float:
-        return self.__resolve__(self.equation)
+        try:
+            return self.__resolve__(self.equation)
+        except OverflowError:
+            return math.inf
+        
     
     def sum(self, equation: str) -> float:
         values = equation.split("+")
@@ -275,12 +278,10 @@ class Equation:
     
     def power(self, equation: str) -> float:
         values = equation.split("**")
-        index = 0 if len(values) > 2 else 1
-        result = self.__resolve__(values.pop(index))
+        result = self.__resolve__(values.pop(-1))
         while len(values) > 0:
-            index = 1 if len(values) > 2 else 0
-            result = self.__resolve__(values.pop(index)) ** result
-        return result
+            result = self.__resolve__(values.pop(-1)) ** result
+        return float(result)
     
     def divide(self, equation: str) -> float:
         values = equation.split("/")
@@ -738,3 +739,7 @@ class EquaDiff(Function):
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
         print(self.equation)
         return self.toHumanRedeable()
+
+
+print(eval("2**3**4"))
+print(Equation("2**3**4").result())

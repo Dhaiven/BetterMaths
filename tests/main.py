@@ -1,7 +1,7 @@
 import time
 from BetterMaths import Equation
 
-def compareEvualAndEquation(equation, nbrOfExecution):
+def compareEvalAndEquation(equation, nbrOfExecution):
     if eval(equation) != Equation(equation).result():
         raise Exception("The result of " + equation + " is " + str(eval(equation)) + " for eval but is " + str(Equation(equation).result()) + " for Equation")
 
@@ -11,15 +11,18 @@ def compareEvualAndEquation(equation, nbrOfExecution):
     evalTime = time.time() - evalTime
 
     equationTime = time.time()
-    t = Equation(equation)
     for i in range(nbrOfExecution):
-        t.result()
+        Equation(equation).result()
     equationTime = time.time() - equationTime
 
     if equationTime >= evalTime:
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(equationTime) + " with Equation")
     
 
-
-compareEvualAndEquation("2**2", 100000)
-compareEvualAndEquation("2+2", 100000)
+compareEvalAndEquation("2+2", 10000)
+compareEvalAndEquation("2*2", 10000)
+compareEvalAndEquation("2*4*7", 10000)
+compareEvalAndEquation("2/2", 10000)
+compareEvalAndEquation("21/2/3", 10000)
+compareEvalAndEquation("2**2", 10000)
+compareEvalAndEquation("2**3**4", 10000)
