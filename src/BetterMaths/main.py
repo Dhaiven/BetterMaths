@@ -264,7 +264,6 @@ class Equation:
         return result
     
     def sub(self, equation: str):
-        print(equation)
         return eval(equation)
     
     def pow(self, equation: str) -> float:
@@ -276,9 +275,11 @@ class Equation:
     
     def power(self, equation: str) -> float:
         values = equation.split("**")
-        result = self.__resolve__(values.pop(0))
+        index = 0 if len(values) > 2 else 1
+        result = self.__resolve__(values.pop(index))
         while len(values) > 0:
-            result **= self.__resolve__(values.pop(0))
+            index = 1 if len(values) > 2 else 0
+            result = self.__resolve__(values.pop(index)) ** result
         return result
     
     def divide(self, equation: str) -> float:
@@ -737,8 +738,3 @@ class EquaDiff(Function):
         self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
         print(self.equation)
         return self.toHumanRedeable()
-
-e = "2**3"
-
-print(eval(e))
-print(Equation(e).result())
