@@ -78,7 +78,13 @@ class Vector:
     
     
     def norm(self):
-        return norm(self)
+            """
+            Calculate the norm of the vector.
+
+            Returns:
+                The norm of the vecor.
+            """
+            return norm(self)
 
 
 class Point:
@@ -119,12 +125,13 @@ class Plane:
 
     """
 
-    def __init__(self, point: Point, i: Vector, j: Vector) -> None:
+    def __init__(self, point: Point, i: Vector, j: Vector, normal=None) -> None:
         if collinear(i, j)[0]:
             raise ValueError("i and j are collinear!")
         self.origin=point
         self.i = i
         self.j = j
+        self.normal=normal
     
     def __repr__(self) -> str:
         i_coords = f"i: {self.i.x},{self.i.y},{self.i.z}"
@@ -133,6 +140,15 @@ class Plane:
 
 
     def pointInPlane(self, point: Point):
+        """
+        Determines if a given point lies in the plane.
+
+        Args:
+            point (Point): The point to check.
+
+        Returns:
+            bool: True if the point lies in the plane, False otherwise.
+        """
         return pointInPlane(self, point)
 
 
@@ -154,6 +170,17 @@ class Line:
         return f"point: {self.point}\nvector: {self.vector}"
     
     
+    def point(self, point: Point) -> bool:
+        """
+        Checks if a given point lies on the line.
+
+        Args:
+            point (Point): The point to be checked.
+
+        Returns:
+            bool: True if the point lies on the line, False otherwise.
+        """
+        return pointInLine(point, self)
     def point(self,point: Point) -> bool:
         return pointInLine(point, self)
 
@@ -183,6 +210,18 @@ class CooordinateSystem:
         j_coords = f"j: {self.j.x},{self.j.y},{self.j.z}"
         k_coords = f"k: {self.k.x},{self.k.y},{self.k.z}"
         return f"{i_coords}\n{j_coords}\n{k_coords}"
+    
+
+    def isOrthonormal(self):
+        """
+        Check if the system is orthonormal.
+
+        Returns:
+            bool: True if the vectors are orthonormal, False otherwise.
+        """
+        if normScalar(self.i, self.j) == normScalar(self.i, self.k) == normScalar(self.j, self.k) == 0 and self.i.norm() == self.j.norm() == self.k.norm():
+            return True
+        return False
 
 
 def collinear(u: Vector, v: Vector) -> "tuple[bool,object]":
@@ -366,21 +405,175 @@ def pointInPlane(point: Point, plane: Plane) -> bool:
 
 
 def norm(u: Vector):
+    """
+    Calculate the norm (magnitude) of a vector.
+
+    Args:
+        u (Vector): The vector for which to calculate the norm.
+
+    Returns:
+        float: The magnitude of the vector.
+
+    """
     return math.sqrt(u.x**2+u.y**2+u.z**2)
 
 
 def coordinatesScalar(u: Vector, v: Vector) -> float:
+    """
+    Calculates the scalar product of two vectors using the coordinates.
+
+    Args:
+        u (Vector): The first vector.
+        v (Vector): The second vector.
+
+    Returns:
+        float: The scalar product of the two vectors.
+    """
     return u.x*v.x+u.y*v.y+u.z*v.z
 
 
 def normScalar(u: Vector, v: Vector) -> float:
-    return 0.5*(u.norm()**2+v.norm()**2)
+    """
+    Calculates the norm scalar of two vectors.
+
+    Parameters:
+    u (Vector): The first vector.
+    v (Vector): The second vector.
+
+    Returns:
+    float: The norm scalar value.
+
+    """
+    return round(0.5*(u.norm()**2+v.norm()**2-(u-v).norm()**2))
 
 
 def findAngle(u: Vector, v: Vector, type: int = 0) -> float:
+    """
+    Calculates the angle between two vectors.
+
+    Parameters:
+    u (Vector): The first vector.
+    v (Vector): The second vector.
+    type (int, optional): The type of angle calculation. Defaults to 0.
+
+    Returns:
+    float: The angle between the two vectors in radians.
+    """
     return acos(coordinatesScalar(u,v)/(u.norm()*v.norm()))
 
 
+def orthogonalVectors(u: Vector, v: Vector) -> bool:
+    """
+    Check if two vectors are orthogonal.
+
+    Args:
+        u (Vector): The first vector.
+        v (Vector): The second vector.
+
+    Returns:
+        bool: True if the vectors are orthogonal, False otherwise.
+    """
+    if coordinatesScalar(u, v) == 0:
+        return True
+    return False
+
+def orthogonalLines(d: Line, D: Line) -> bool:
+    """
+    Checks if two lines are orthogonal.
+
+    Args:
+        d (Line): The first line.
+        D (Line): The second line.
+
+    Returns:
+        bool: True if the lines are orthogonal, False otherwise.
+    """
+    if orthogonalVectors(d.vector, D.vector):
+        return True
+    return False
+
+def orthogonalLinePlane(d: Line, P: Plane) -> bool:
+    """
+    Checks if a line is orthogonal to a plane.
+
+    Args:
+        d (Line): The line to check.
+        P (Plane): The plane to check.
+
+    Returns:
+        bool: True if the line is orthogonal to the plane, False otherwise.
+    """
+    if orthogonalVectors(d.vector,P.i) and orthogonalVectors(d.vector,P.j):
+        return True
+    return False
+
+
+def normalVector(n: Vector, P: Plane) -> bool:
+    """
+    Determines if the given vector `n` is a normal vector to the plane `P`.
+    If it is, the normal vector of `P` is set to `n`.
+
+    Args:
+        n (Vector): The vector to check.
+        P (Plane): The plane to check against.
+
+    Returns:
+        bool: True if `n` is a normal vector to `P`, False otherwise.
+    """
+    if orthogonalVectors(n, P.i) == orthogonalVectors(n, P.j) == 0:
+        P.normal = n
+        return True
+    return False
+def normalVector(n: Vector, P: Plane) -> bool:
+    if orthogonalVectors(n,P.i)==orthogonalVectors(n,P.j)==0:
+        P.normal=n
+        return True
+    return False
+
+
+def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
+    """
+    Checks if two planes are perpendicular to each other.
+
+    Args:
+        P1 (Plane): The first plane.
+        P2 (Plane): The second plane.
+
+    Returns:
+        bool: True if the planes are perpendicular, False otherwise.
+
+    Raises:
+        ValueError: If the normal vector is not specified for either plane.
+
+    """
+    if P1.normal == None:
+        raise ValueError("You did not specify a normal vector for the first plane! Use normalVector() to add one.")
+    elif P2.normal == None:
+        raise ValueError("You did not specify a normal vector for the second plane! Use normalVector() to add one.")
+    
+    if orthogonalVectors(P1.normal, P2.normal):
+        return True
+    return False
+def perpendicularPlanes(P1: Plane,P2: Plane) -> bool:
+    if P1.normal==None:
+        raise ValueError("You did not specified a normal vector for the first plane! Use normalVector() to add one.")
+    elif P2.normal==None:
+        raise ValueError("You did not specified a normal vector for the second plane! Use normalVector() to add one.")
+    if orthogonalVectors(P1.normal,P2.normal):
+        return True
+    return False
+
+
+
+
+
+u=Vector(-2,-2,1)
+print(u.norm())
+v=Vector(3,0,-3)
+print(v.norm())
+print(coordinatesScalar(u,v))
+print(normScalar(u,v))
+print(findAngle(u,v))
 
 all=[
     "Vector",
@@ -397,5 +590,13 @@ all=[
     "pointsVector",
     "pointInLine",
     "pointInPlane",
-    "norm"
+    "norm",
+    "coordinatesScalar",
+    "normScalar",
+    "findAngle",
+    "orthogonalVectors",
+    "orthogonalLines",
+    "orthogonalLinePlane",
+    "normalVector",
+    "perpendicularPlanes"
 ]
