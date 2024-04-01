@@ -264,6 +264,7 @@ class Equation:
         return result
     
     def sub(self, equation: str):
+        print(equation)
         return eval(equation)
     
     def pow(self, equation: str) -> float:
@@ -273,9 +274,19 @@ class Equation:
             result *= self.__resolve__(values.pop())
         return result
     
+    def power(self, equation: str) -> float:
+        values = equation.split("**")
+        result = self.__resolve__(values.pop(0))
+        while len(values) > 0:
+            result **= self.__resolve__(values.pop(0))
+        return result
+    
     def divide(self, equation: str) -> float:
-        values = equation.split("/", 1)
-        return self.__resolve__(values.pop()) / self.__resolve__(values.pop())
+        values = equation.split("/")
+        result = self.__resolve__(values.pop(0))
+        while len(values) > 0:
+            result /= self.__resolve__(values.pop(0))
+        return result
 
     def __resolve__(self, equation: str) -> float:
         result = 0
@@ -316,6 +327,8 @@ class Equation:
             if "pi" in equation:
                 equation = equation.replace("pi", str(math.pi))
             return equation
+        elif "**" in equation:
+            result += self.power(equation)
         elif "*" in equation:
             result += self.pow(equation)
         elif "/" in equation:
@@ -325,7 +338,6 @@ class Equation:
         elif "-" in equation:
             result += self.sub(equation)
         else:
-            print(equation)
             result += float(equation)
 
         if "pi" in equation:
@@ -726,7 +738,7 @@ class EquaDiff(Function):
         print(self.equation)
         return self.toHumanRedeable()
 
-e = "--exp(0)-7"
+e = "2**3"
 
-
+print(eval(e))
 print(Equation(e).result())
