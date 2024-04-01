@@ -67,34 +67,6 @@ class Vector:
         return inPlane(self, plane)
 
 
-class Plane:
-    """
-    Represents a plane in three-dimensional space.
-
-    Attributes:
-        i (Vector): The vector representing the direction of the i-axis.
-        j (Vector): The vector representing the direction of the j-axis.
-        k (Vector): The vector representing the direction of the k-axis.
-
-    Raises:
-        ValueError: If the vectors i, j, and k are coplanar.
-
-    """
-
-    def __init__(self, i: Vector, j: Vector, k: Vector) -> None:
-        if coplanar(i, j, k):
-            raise ValueError("i, j and k are coplanar!")
-        self.i = i
-        self.j = j
-        self.k = k
-    
-    def __repr__(self) -> str:
-        i_coords = f"i: {self.i.x},{self.i.y},{self.i.z}"
-        j_coords = f"j: {self.j.x},{self.j.y},{self.j.z}"
-        k_coords = f"k: {self.k.x},{self.k.y},{self.k.z}"
-        return f"{i_coords}\n{j_coords}\n{k_coords}"
-
-
 class Point:
     """
     Represents a point in three-dimensional space.
@@ -111,9 +83,43 @@ class Point:
         self.z = z
         self.plane=plane
     
+
+    def __repr__(self) -> str:
+        return f"x: {self.x}\ny: {self.y}\nz: {self.z}\nplane: {self.plane}"
+    
     
     def vector(self, point) -> Vector:
         return pointsVector(self,point)
+
+
+class Plane:
+    """
+    Represents a plane in three-dimensional space.
+
+    Attributes:
+        i (Vector): The vector representing the direction of the i-axis.
+        j (Vector): The vector representing the direction of the j-axis.
+
+    Raises:
+        ValueError: If the vectors i, j, and k are coplanar.
+
+    """
+
+    def __init__(self, point: Point, i: Vector, j: Vector) -> None:
+        if collinear(i, j)[0]:
+            raise ValueError("i and j are collinear!")
+        self.origin=point
+        self.i = i
+        self.j = j
+    
+    def __repr__(self) -> str:
+        i_coords = f"i: {self.i.x},{self.i.y},{self.i.z}"
+        j_coords = f"j: {self.j.x},{self.j.y},{self.j.z}"
+        return f"{i_coords}\n{j_coords}"
+
+
+    def pointInPlane(self, point: Point):
+        return pointInPlane(self, point)
 
 
 class Line:
@@ -128,6 +134,10 @@ class Line:
     def __init__(self, point: Point, vector: Vector) -> None:
         self.point = point
         self.vector = vector
+    
+
+    def __repr__(self) -> str:
+        return f"point: {self.point}\nvector: {self.vector}"
     
     
     def point(self,point: Point) -> bool:
@@ -152,6 +162,13 @@ class CooordinateSystem:
         self.i=i
         self.j=j
         self.k=k
+    
+
+    def __repr__(self) -> str:
+        i_coords = f"i: {self.i.x},{self.i.y},{self.i.z}"
+        j_coords = f"j: {self.j.x},{self.j.y},{self.j.z}"
+        k_coords = f"k: {self.k.x},{self.k.y},{self.k.z}"
+        return f"{i_coords}\n{j_coords}\n{k_coords}"
 
 
 def collinear(u: Vector, v: Vector) -> "tuple[bool,object]":
@@ -208,11 +225,7 @@ def inPlane(u: Vector, plane: Plane):
     """
     i = plane.i
     j = plane.j
-    k = plane.k
-    solutions = solveSystem3(f"{i.x}*a+{j.x}*b+{k.x}*c-{u.x}", f"{i.y}*a+{j.y}*b+{k.y}*c-{u.y}", f"{i.z}*a+{j.z}*b+{k.z}*c-{u.z}")
-    if solutions!={}:
-        return True
-    return False
+    return coplanar(u,i,j)
 
 
 def solveSystem1(eq1, eq2, eq3):
@@ -307,3 +320,49 @@ def pointInLine(point: Point, line: Line) -> bool:
     if solutions != {}:
         return True
     return False
+
+
+def pointInPlane(point: Point, plane: Plane) -> bool:
+    """
+    Check if a point lies on a plane.
+
+    Args:
+        point (Point): The point to check.
+        plane (Plane): The plane to check against.
+
+    Returns:
+        bool: True if the point lies on the plane, False otherwise.
+    """
+    x = point.x
+    y = point.y
+    z = point.z
+    xo = plane.origin.x
+    yo = plane.origin.y
+    zo = plane.origin.z
+    xi = plane.i.x
+    yi = plane.i.y
+    zi = plane.i.z
+    xj = plane.j.x
+    yj = plane.j.y
+    zj = plane.j.z
+    solutions = solveSystem2(f"{xo}+{xi}*a+{xj}*b-{x}",f"{yo}+{yi}*a+{yj}*b-{y}",f"{zo}+{zi}*a+{zj}*b-{z}")
+    if solutions != {}:
+        return True
+    return False
+
+all=[
+    "Vector",
+    "Point",
+    "Plane",
+    "Line",
+    "CooordinateSystem",
+    "collinear",
+    "coplanar",
+    "inPlane",
+    "solveSystem1",
+    "solveSystem2",
+    "solveSystem3",
+    "pointsVector",
+    "pointInLine",
+    "pointInPlane"
+]
