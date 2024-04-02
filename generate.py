@@ -1,4 +1,4 @@
-import subprocess, sys, shutil
+import subprocess, sys, os, shutil
 
 commandBase = "python"
 
@@ -9,6 +9,10 @@ except:
     subprocess.run(["pip", "install", "toml"])
     subprocess.run([commandBase, __file__])
     sys.exit()
+
+#Remove dist dir
+if os.path.exists("dist"):
+    shutil.rmtree("dist")
 
 subprocess.run([commandBase, "-m", "build"])
 
@@ -23,6 +27,3 @@ with open("pyproject.toml", "r") as file:
 version = toml_data["project"]["version"]
 
 subprocess.run(["pip", "install", f"dist/bettermaths-{version}-py3-none-any.whl"])
-
-#Remove dist dir
-shutil.rmtree("dist")
