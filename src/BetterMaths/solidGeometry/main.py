@@ -524,11 +524,6 @@ def normalVector(n: Vector, P: Plane) -> bool:
         P.normal = n
         return True
     return False
-def normalVector(n: Vector, P: Plane) -> bool:
-    if orthogonalVectors(n,P.i)==orthogonalVectors(n,P.j)==0:
-        P.normal=n
-        return True
-    return False
 
 
 def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
@@ -554,14 +549,6 @@ def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
     if orthogonalVectors(P1.normal, P2.normal):
         return True
     return False
-def perpendicularPlanes(P1: Plane,P2: Plane) -> bool:
-    if P1.normal==None:
-        raise ValueError("You did not specified a normal vector for the first plane! Use normalVector() to add one.")
-    elif P2.normal==None:
-        raise ValueError("You did not specified a normal vector for the second plane! Use normalVector() to add one.")
-    if orthogonalVectors(P1.normal,P2.normal):
-        return True
-    return False
 
 
 def cartesianEquation(P: Plane) -> str:
@@ -581,9 +568,11 @@ def cartesianEquation(P: Plane) -> str:
 
 A=Point(1,2,3)
 u=Vector(1,2,3)
-v=Vector(2,4,6)
+v=Vector(2,5,6)
 P=Plane(A,u,v)
 n=Vector(1,1,1)
+print(normalVector(n,P))
+print(cartesianEquation(P))
 
 
 all=[
