@@ -526,6 +526,19 @@ def normalVector(n: Vector, P: Plane) -> bool:
     return False
 
 
+def createNormalVector(P: Plane) -> Vector:
+    """
+    Creates a normal vector to a plane.
+
+    Args:
+        P (Plane): The plane.
+
+    Returns:
+        Vector: The normal vector to the plane.
+    """
+    return Vector(P.i.y*P.j.z-P.i.z*P.j.y,P.i.z*P.j.x-P.i.x*P.j.z,P.i.x*P.j.y-P.i.y*P.j.x)
+
+
 def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
     """
     Checks if two planes are perpendicular to each other.
@@ -566,15 +579,6 @@ def cartesianEquation(P: Plane) -> str:
     return f"{P.normal.x}x+{P.normal.y}y+{P.normal.z}z-{P.normal.x*P.origin.x+P.normal.y*P.origin.y+P.normal.z*P.origin.z}=0"
 
 
-A=Point(1,2,3)
-u=Vector(1,2,3)
-v=Vector(2,5,6)
-P=Plane(A,u,v)
-n=Vector(1,1,1)
-print(normalVector(n,P))
-print(cartesianEquation(P))
-
-
 all=[
     "Vector",
     "Point",
@@ -598,5 +602,7 @@ all=[
     "orthogonalLines",
     "orthogonalLinePlane",
     "normalVector",
-    "perpendicularPlanes"
+    "createNormalVector",
+    "perpendicularPlanes",
+    "cartesianEquation"
 ]
