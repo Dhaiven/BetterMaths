@@ -1,4 +1,4 @@
-![Title](images/banner.png "Title")
+![BeterMaths Banner](https://github.com/Dhaiven/BetterMaths/blob/main/images/banner.png)
 
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 > [!WARNING]
@@ -15,12 +15,15 @@ equation.result() # 57.92325394625613
 ```
 
 ### Why use ```Equation``` and not ```eval``` ?
-- ```Equation``` is more faster than ```eval``` (See [tests/main.py](https://github.com/Dhaiven/BetterMaths/blob/main/tests/main.py))
+- ```Equation``` is faster than ```eval``` (See [tests/main.py](https://github.com/Dhaiven/BetterMaths/blob/main/tests/main.py))
 - ```Equation``` support parenthese, mathematical formulas like ```cos``` and magics numbers like ```π```
 
 
 ### See the [Wiki](https://github.com/Dhaiven/BetterMaths/wiki) for more documentations
 
+## Instalation
+Open your terminal and put ```pip install BetterMaths```
+<br> For upgrade the version, put ```pip install --upgrade BetterMaths```
 
 ## Contribution
 BetterMaths accepts community contributions! <br>
