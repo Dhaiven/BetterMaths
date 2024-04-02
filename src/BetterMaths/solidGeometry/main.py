@@ -520,7 +520,7 @@ def normalVector(n: Vector, P: Plane) -> bool:
     Returns:
         bool: True if `n` is a normal vector to `P`, False otherwise.
     """
-    if orthogonalVectors(n, P.i) == orthogonalVectors(n, P.j) == 0:
+    if orthogonalVectors(n, P.i) == orthogonalVectors(n, P.j) == True:
         P.normal = n
         return True
     return False
