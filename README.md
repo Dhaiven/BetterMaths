@@ -4,7 +4,23 @@
 > [!WARNING]
 > This module is in beta phase
 
-#### See the [Wiki](https://github.com/Dhaiven/BetterMaths/wiki) for documentations
+
+## Little documentation
+This module add ```Equation``` class that allow resolve equation in string
+```python
+# Create an equation
+equation = Equation("2+7*8cos(3)")
+# Resolve this equation
+equation.result() # 57.92325394625613
+```
+
+### Why use ```Equation``` and not ```eval``` ?
+- ```Equation``` is more faster than ```eval``` (See [tests/main.py](https://github.com/Dhaiven/BetterMaths/blob/main/tests/main.py))
+- ```Equation``` support parenthese, mathematical formulas like ```cos``` and magics numbers like ```π```
+
+
+### See the [Wiki](https://github.com/Dhaiven/BetterMaths/wiki) for more documentations
+
 
 ## Contribution
 BetterMaths accepts community contributions! <br>
