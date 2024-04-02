@@ -520,15 +520,23 @@ def normalVector(n: Vector, P: Plane) -> bool:
     Returns:
         bool: True if `n` is a normal vector to `P`, False otherwise.
     """
-    if orthogonalVectors(n, P.i) == orthogonalVectors(n, P.j) == 0:
+    if orthogonalVectors(n, P.i) == orthogonalVectors(n, P.j) == True:
         P.normal = n
         return True
     return False
-def normalVector(n: Vector, P: Plane) -> bool:
-    if orthogonalVectors(n,P.i)==orthogonalVectors(n,P.j)==0:
-        P.normal=n
-        return True
-    return False
+
+
+def createNormalVector(P: Plane) -> Vector:
+    """
+    Creates a normal vector to a plane.
+
+    Args:
+        P (Plane): The plane.
+
+    Returns:
+        Vector: The normal vector to the plane.
+    """
+    return Vector(P.i.y*P.j.z-P.i.z*P.j.y,P.i.z*P.j.x-P.i.x*P.j.z,P.i.x*P.j.y-P.i.y*P.j.x)
 
 
 def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
@@ -554,26 +562,22 @@ def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
     if orthogonalVectors(P1.normal, P2.normal):
         return True
     return False
-def perpendicularPlanes(P1: Plane,P2: Plane) -> bool:
-    if P1.normal==None:
-        raise ValueError("You did not specified a normal vector for the first plane! Use normalVector() to add one.")
-    elif P2.normal==None:
-        raise ValueError("You did not specified a normal vector for the second plane! Use normalVector() to add one.")
-    if orthogonalVectors(P1.normal,P2.normal):
-        return True
-    return False
 
 
+def cartesianEquation(P: Plane) -> str:
+    """
+    Returns the Cartesian equation of a plane.
 
+    Args:
+        P (Plane): The plane.
 
+    Returns:
+        str: The Cartesian equation of the plane.
+    """
+    if P.normal==None:
+        raise ValueError("You did not specify a normal vector for the plane! Use normalVector() to add one.")
+    return f"{P.normal.x}x+{P.normal.y}y+{P.normal.z}z-{P.normal.x*P.origin.x+P.normal.y*P.origin.y+P.normal.z*P.origin.z}=0"
 
-u=Vector(-2,-2,1)
-print(u.norm())
-v=Vector(3,0,-3)
-print(v.norm())
-print(coordinatesScalar(u,v))
-print(normScalar(u,v))
-print(findAngle(u,v))
 
 all=[
     "Vector",
@@ -598,5 +602,7 @@ all=[
     "orthogonalLines",
     "orthogonalLinePlane",
     "normalVector",
-    "perpendicularPlanes"
+    "createNormalVector",
+    "perpendicularPlanes",
+    "cartesianEquation"
 ]
