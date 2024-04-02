@@ -284,8 +284,8 @@ class Equation:
     def sum(self, equation: str) -> float:
         values = equation.split("+")
         result = 0
-        while len(values) > 0:
-            result += self.__resolve__(values.pop())
+        for value in values:
+            result += self.__resolve__(value)
         return result
     
     def sub(self, equation: str):
@@ -293,7 +293,10 @@ class Equation:
     
     def pow(self, equation: str) -> float:
         values = equation.split("*")
-        return math.prod([self.__resolve__(v) for v in values])
+        result = self.__resolve__(values.pop())
+        for value in values:
+            result *= self.__resolve__(value)
+        return result
     
     def power(self, equation: str) -> float:
         values = equation.split("**")
@@ -305,22 +308,22 @@ class Equation:
     def divide(self, equation: str) -> float:
         values = equation.split("/")
         result = self.__resolve__(values.pop(0))
-        while len(values) > 0:
-            result /= self.__resolve__(values.pop(0))
+        for value in values:
+            result /= self.__resolve__(value)
         return result
     
     def floordivide(self, equation: str) -> float:
         values = equation.split("//")
         result = self.__resolve__(values.pop(0))
-        while len(values) > 0:
-            result //= self.__resolve__(values.pop(0))
+        for value in values:
+            result //= self.__resolve__(value)
         return result
     
     def modulo(self, equation: str) -> float:
         values = equation.split("%")
         result = self.__resolve__(values.pop(0))
-        while len(values) > 0:
-            result %= self.__resolve__(values.pop(0))
+        for value in values:
+            result %= self.__resolve__(value)
         return result
 
     def __resolve__(self, equation: str) -> float:

@@ -9,7 +9,8 @@ def compareEvalAndEquation(equation, nbrOfExecution = 10000):
     t = timeit.Timer(lambda: eval(equation))
     evalTime = t.timeit(nbrOfExecution)
 
-    t = timeit.Timer(lambda: Equation(equation).result())
+    a = Equation(equation)
+    t = timeit.Timer(lambda: a.result())
     equationTime = t.timeit(nbrOfExecution)
 
     if equationTime >= evalTime + 0.1:
@@ -17,7 +18,7 @@ def compareEvalAndEquation(equation, nbrOfExecution = 10000):
     print(equation + " executed in " + str(evalTime - equationTime) + " less eval")
     
 
-compareEvalAndEquation("2**2", 10000)
+compareEvalAndEquation("2*2", 10000)
 compareEvalAndEquation("2*4*7", 10000)
 compareEvalAndEquation("2**3**4", 10000)
 
@@ -43,41 +44,21 @@ def compareEvalAndSum(start, end, equation: str, nbrOfExecution):
     if resultEval != Sum(start, end, equation).result():
         raise Exception("The result of " + equation + " is " + str(resultEval) + " for eval but is " + str(Sum(start, end, equation).result()) + " for Sum")
 
-    evalTime = time.time()
-    for i in range(nbrOfExecution):
-        for j in range(start, end + 1):
-            eval(equation.replace("x", "*" + str(i)))
-    evalTime = time.time() - evalTime
+    def executeEval(start, end, equation: str, nbrOfExecution):
+        for i in range(nbrOfExecution):
+            for j in range(start, end + 1):
+                eval(equation.replace("x", "*" + str(i)))
 
-    sumTime = time.time()
-    for i in range(nbrOfExecution):
-        Sum(start, end, equation).result()
-    sumTime = time.time() - sumTime
+    t = timeit.Timer(lambda: executeEval(start, end, equation, nbrOfExecution))
+    evalTime = t.timeit(1)
+
+    t = timeit.Timer(lambda: Sum(start, end, equation).result())
+    sumTime = t.timeit(nbrOfExecution)
 
     if sumTime >= evalTime:
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Sum")
-
+    print(equation + " executed in " + str(evalTime - sumTime) + " less eval")
 
 compareEvalAndSum(1, 10, "2", 1000)
 compareEvalAndSum(1, 10, "2x", 1000)
 compareEvalAndSum(1, 10, "2x+7", 1000)
-
-"""
--0.05046669999137521
--0.04524559999117628
--0.046169000008376315
-
--0.03031790003296919
--0.02236480001010932
--0.026059499999973923
-
--0.025607599993236363
--0.02437369999825023
--0.048690600000554696
-
--0.029581099981442094
--0.02819909996469505
--0.02510119997896254
--0.002153899986296892
--0.021372799965320155
-"""
