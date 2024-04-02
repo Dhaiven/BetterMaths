@@ -138,7 +138,7 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     Returns:
         The result of the resolved calculation.
     """
-    equation = Equation(calcul, args=options, mustCheck=False)
+    equation = Equation(calcul, args=options)
     return equation.result()
 
 

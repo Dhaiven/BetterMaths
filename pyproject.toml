@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BetterMaths"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
   "sympy"
 ]
@@ -32,5 +32,5 @@ keywords = ["math", "mathematics", "better", "easier", "simple", "easy"]
 
 [project.urls]
 Homepage = "https://dhaiven.github.io/"
-Documentation = "https://dhaiven.github.io/BetterMaths/wiki"
+Documentation = "https://github.com/Dhaiven/BetterMaths/wiki"
 Repository = "https://github.com/Dhaiven/BetterMaths"
