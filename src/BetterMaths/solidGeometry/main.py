@@ -256,7 +256,7 @@ def coplanar(u: Vector, v: Vector, w: Vector) -> bool:
     """
     return (
         (collinear(u,v)[0] or collinear(u,w)[0] or collinear(v,w)[0])
-        or not solveSystem2(f"{u.x}*a+{v.x}*b-{w.x}",f"{u.y}*a+{v.y}*b-{w.y}",f"{u.z}*a+{v.z}*b-{w.z}")!={}
+        or not solveSystem(f"{u.x}*a+{v.x}*b-{w.x}",f"{u.y}*a+{v.y}*b-{w.y}",f"{u.z}*a+{v.z}*b-{w.z}")!=[]
     )
 
 
@@ -275,57 +275,25 @@ def inPlane(u: Vector, plane: Plane):
     j = plane.j
     return coplanar(u,i,j)
 
-
-def solveSystem1(eq1, eq2, eq3):
+def solveSystem(equations: "list[str]") -> list:
     """
-    Solves a system of equations with 1 unknown.
+    Solves a system of equations.
 
-    Parameters:
-    eq1 (sympy.Expr): The first equation.
-    eq2 (sympy.Expr): The second equation.
-    eq3 (sympy.Expr): The third equation.
+    Args:
+        equations (list[str]): A list of equations.
 
     Returns:
-    dict: A dictionary containing the solutions for the unknown.
+        list: A list of solutions.
+
+    Raises:
+        ValueError: If the equations list contains less than 2 equations.
     """
-    a = sympy.symbols('a')
-    solutions = sympy.solve((eq1, eq2, eq3), (a))
+    if len(equations) < 2:
+        raise ValueError("The equations list must contain at least 2 equations!")
+    alphabet = [chr(i) for i in range(97, 123)]
+    symbols = sympy.symbols(alphabet)
+    solutions = sympy.solve(equations, symbols)
     return solutions
-
-
-def solveSystem2(eq1, eq2, eq3):
-    """
-    Solves a system of equations with 2 unknowns.
-
-    Parameters:
-    eq1 (sympy.Expr): The first equation.
-    eq2 (sympy.Expr): The second equation.
-    eq3 (sympy.Expr): The third equation.
-
-    Returns:
-    dict: A dictionary containing the solutions for the unknowns.
-    """
-    a, b = sympy.symbols('a b')
-    solutions = sympy.solve((eq1, eq2, eq3), (a, b))
-    return solutions
-
-
-def solveSystem3(eq1, eq2, eq3):
-    """
-    Solves a system of equations with three unknowns.
-
-    Parameters:
-    eq1 (sympy.Expr): The first equation.
-    eq2 (sympy.Expr): The second equation.
-    eq3 (sympy.Expr): The third equation.
-
-    Returns:
-    dict: A dictionary containing the solutions for the unknowns.
-    """
-    a, b, c = sympy.symbols('a b c')
-    solutions = sympy.solve((eq1, eq2, eq3), (a, b, c))
-    return solutions
-
 
 def pointsVector(pointA: Point, pointB: Point):
     """
@@ -364,7 +332,7 @@ def pointInLine(point: Point, line: Line) -> bool:
     xlp = line.point.x
     ylp = line.point.y
     zlp = line.point.z
-    return solveSystem1(f"{xlp}+{xl}*a-{xp}", f"{ylp}+{yl}*a-{yp}", f"{zlp}+{zl}*a-{zp}")
+    return solveSystem([f"{xlp}+{xl}*a-{xp}", f"{ylp}+{yl}*a-{yp}", f"{zlp}+{zl}*a-{zp}"])!=[]
 
 
 def pointInPlane(point: Point, plane: Plane) -> bool:
@@ -390,7 +358,7 @@ def pointInPlane(point: Point, plane: Plane) -> bool:
     xj = plane.j.x
     yj = plane.j.y
     zj = plane.j.z
-    return solveSystem2(f"{xo}+{xi}*a+{xj}*b-{x}",f"{yo}+{yi}*a+{yj}*b-{y}",f"{zo}+{zi}*a+{zj}*b-{z}") != {}
+    return solveSystem(f"{xo}+{xi}*a+{xj}*b-{x}",f"{yo}+{yi}*a+{yj}*b-{y}",f"{zo}+{zi}*a+{zj}*b-{z}") != []
 
 
 def norm(u: Vector):
@@ -569,9 +537,7 @@ all=[
     "collinear",
     "coplanar",
     "inPlane",
-    "solveSystem1",
-    "solveSystem2",
-    "solveSystem3",
+    "solveSystem",
     "pointsVector",
     "pointInLine",
     "pointInPlane",
