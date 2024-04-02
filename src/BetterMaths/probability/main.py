@@ -90,10 +90,9 @@ class Binomial:
             if under>self.n:
                 raise ValueError("Confidence too high!")
         top=under-1
-        top_total=under_total
-        b=(confidence+((100-confidence)/2))/100 and top<=self.n
-        while top_total<b:
-            top_total+=self.result(top)
+        b=confidence/100+a
+        while under_total<b:
+            under_total+=self.result(top)
             top+=1
         return (under-1, top)
 

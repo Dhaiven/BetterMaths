@@ -181,8 +181,6 @@ class Line:
             bool: True if the point lies on the line, False otherwise.
         """
         return pointInLine(point, self)
-    def point(self,point: Point) -> bool:
-        return pointInLine(point, self)
 
 
 class CooordinateSystem:
@@ -219,9 +217,7 @@ class CooordinateSystem:
         Returns:
             bool: True if the vectors are orthonormal, False otherwise.
         """
-        if normScalar(self.i, self.j) == normScalar(self.i, self.k) == normScalar(self.j, self.k) == 0 and self.i.norm() == self.j.norm() == self.k.norm():
-            return True
-        return False
+        return normScalar(self.i, self.j) == normScalar(self.i, self.k) == normScalar(self.j, self.k) == 0 and self.i.norm() == self.j.norm() == self.k.norm()
 
 
 def collinear(u: Vector, v: Vector) -> "tuple[bool,object]":
@@ -258,11 +254,10 @@ def coplanar(u: Vector, v: Vector, w: Vector) -> bool:
     Returns:
         bool: True if the vectors are coplanar, False otherwise.
     """
-    if collinear(u,v)[0] or collinear(u,w)[0] or collinear(v,w)[0]:
-        return True
-    if solveSystem2(f"{u.x}*a+{v.x}*b-{w.x}",f"{u.y}*a+{v.y}*b-{w.y}",f"{u.z}*a+{v.z}*b-{w.z}")!={}:
-        return False
-    return True
+    return (
+        (collinear(u,v)[0] or collinear(u,w)[0] or collinear(v,w)[0])
+        or not solveSystem2(f"{u.x}*a+{v.x}*b-{w.x}",f"{u.y}*a+{v.y}*b-{w.y}",f"{u.z}*a+{v.z}*b-{w.z}")!={}
+    )
 
 
 def inPlane(u: Vector, plane: Plane):
@@ -369,10 +364,7 @@ def pointInLine(point: Point, line: Line) -> bool:
     xlp = line.point.x
     ylp = line.point.y
     zlp = line.point.z
-    solutions = solveSystem1(f"{xlp}+{xl}*a-{xp}", f"{ylp}+{yl}*a-{yp}", f"{zlp}+{zl}*a-{zp}")
-    if solutions != {}:
-        return True
-    return False
+    return solveSystem1(f"{xlp}+{xl}*a-{xp}", f"{ylp}+{yl}*a-{yp}", f"{zlp}+{zl}*a-{zp}")
 
 
 def pointInPlane(point: Point, plane: Plane) -> bool:
@@ -398,10 +390,7 @@ def pointInPlane(point: Point, plane: Plane) -> bool:
     xj = plane.j.x
     yj = plane.j.y
     zj = plane.j.z
-    solutions = solveSystem2(f"{xo}+{xi}*a+{xj}*b-{x}",f"{yo}+{yi}*a+{yj}*b-{y}",f"{zo}+{zi}*a+{zj}*b-{z}")
-    if solutions != {}:
-        return True
-    return False
+    return solveSystem2(f"{xo}+{xi}*a+{xj}*b-{x}",f"{yo}+{yi}*a+{yj}*b-{y}",f"{zo}+{zi}*a+{zj}*b-{z}") != {}
 
 
 def norm(u: Vector):
@@ -473,9 +462,7 @@ def orthogonalVectors(u: Vector, v: Vector) -> bool:
     Returns:
         bool: True if the vectors are orthogonal, False otherwise.
     """
-    if coordinatesScalar(u, v) == 0:
-        return True
-    return False
+    return coordinatesScalar(u, v) == 0
 
 def orthogonalLines(d: Line, D: Line) -> bool:
     """
@@ -488,9 +475,7 @@ def orthogonalLines(d: Line, D: Line) -> bool:
     Returns:
         bool: True if the lines are orthogonal, False otherwise.
     """
-    if orthogonalVectors(d.vector, D.vector):
-        return True
-    return False
+    return orthogonalVectors(d.vector, D.vector)
 
 def orthogonalLinePlane(d: Line, P: Plane) -> bool:
     """
@@ -503,9 +488,7 @@ def orthogonalLinePlane(d: Line, P: Plane) -> bool:
     Returns:
         bool: True if the line is orthogonal to the plane, False otherwise.
     """
-    if orthogonalVectors(d.vector,P.i) and orthogonalVectors(d.vector,P.j):
-        return True
-    return False
+    return orthogonalVectors(d.vector,P.i) and orthogonalVectors(d.vector,P.j)
 
 
 def normalVector(n: Vector, P: Plane) -> bool:
@@ -559,9 +542,7 @@ def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
     elif P2.normal == None:
         raise ValueError("You did not specify a normal vector for the second plane! Use normalVector() to add one.")
     
-    if orthogonalVectors(P1.normal, P2.normal):
-        return True
-    return False
+    return orthogonalVectors(P1.normal, P2.normal)
 
 
 def cartesianEquation(P: Plane) -> str:

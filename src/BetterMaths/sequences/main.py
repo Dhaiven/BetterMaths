@@ -234,17 +234,15 @@ class Sequence:
             else:
                 return "-inf"
         elif self.type==2:
-            if self.isGeometric()[1]>1:
+            geometricRatio = self.isGeometric()[1]
+            if geometricRatio>1:
                 if self.initial_term>0:
                     return "+inf"
                 else:
                     return "-inf"
-            elif -1<self.isGeometric()[1]<1:
+            elif -1<geometricRatio<1:
                 return 0
-            else:
-                return None
-        else:
-            return None
+        return None
     
     def __repr__(self):
         return f"Sequence({self.initial_term}, {self.expression}, {self.type})"
