@@ -56,7 +56,7 @@ def compareEvalAndSum(start, end, equation: str, nbrOfExecution):
 
     if sumTime >= evalTime:
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Sum")
-    print(equation + " executed in " + str(evalTime - sumTime) + " less eval")
+    print("Sum of " + equation + " executed in " + str(evalTime - sumTime) + " less eval")
 
 compareEvalAndSum(1, 10, "2", 1000)
 compareEvalAndSum(1, 10, "2x", 1000)
@@ -87,7 +87,7 @@ def compareEvalAndProd(start, end, equation: str, nbrOfExecution):
 
     if sumTime >= evalTime:
         raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Prod")
-    print(equation + " executed in " + str(evalTime - sumTime) + " less eval")
+    print("Prod of " + equation + " executed in " + str(evalTime - sumTime) + " less eval")
 
 
 compareEvalAndProd(1, 10, "2", 1000)
