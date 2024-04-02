@@ -671,26 +671,37 @@ class Function(Equation):
 
 
 
-class Sum(Function):
+class Sum(Equation):
     def __init__(self, start, end, equation, unknow = "x"):
         self.start = start
         self.end = end
-        super().__init__(equation, unknow)
 
+        self.name = unknow
+
+        super().__init__(equation)
+
+        self.hasUnknow = self.equation.find(self.name) != -1
+
+        if self.hasUnknow:
+            self.equation = "+".join([self.equation.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
+        else:
+            self.equation = str((self.end + 1) - self.start) + "*" + self.equation
+    
+
+    def __getProgramReadable__(self) -> dict:
+        replacables = super().__getProgramReadable__()
+        for nbr in range(0, 10):
+            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
+        return replacables
 
     def result(self):
-        return self.toEquation().result()
+        return super().result()
 
     def toFunction(self) -> Function:
-        equation = [self.equation.replace(self.name, str(i)) for i in range(self.start, self.end + 1)]
-        return Function("+".join(equation))
+        return Function(self.equation)
 
     def toEquation(self) -> Equation:
-        if self.hasUnknow:
-            equation = "+" .join([self.equation.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
-        else:
-            equation = str((self.end + 1) - self.start) + "*" + self.equation
-        return Equation(equation)
+        return Equation(self.equation)
 
 
     def __add__(self, other):
@@ -732,42 +743,36 @@ class Sum(Function):
     def __radd__(self, other) -> "Equation":
         return self.__add__(other)
 
-class EquaDiff(Function):
-    """
-    Represents an equation differential function.
 
-    Args:
-        equation (str): The equation to be solved.
-        name (str, optional): The name of the variable in the equation. Defaults to "x".
-        **args: Additional arguments to be passed to the parent class.
 
-    Attributes:
-        equation (str): The equation to be solved.
-        name (str): The name of the variable in the equation.
-        options (dict): Additional options for solving the equation.
+class Prod(Equation):
+    def __init__(self, start, end, equation, unknow = "x"):
+        self.start = start
+        self.end = end
 
-    Methods:
-        result(value=""): Computes the result of the equation for a given value.
+        self.name = unknow
 
-    """
+        super().__init__(equation)
+        
+        self.hasUnknow = self.equation.find(self.name) != -1
 
-    def __init__(self, equation, name="x", **args):
-        super().__init__(equation, name, **args)
+        if self.hasUnknow:
+            self.equation = "*" .join(["(" + self.equation.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
+        else:
+            self.equation =  "(" + self.equation + ")**" + str((self.end + 1) - self.start)
 
-    def result(self, value=""):
-        """
-        Computes the result of the equation for a given value.
+        
+    def __getProgramReadable__(self) -> dict:
+        replacables = super().__getProgramReadable__()
+        for nbr in range(0, 10):
+            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
+        return replacables
 
-        Args:
-            value (str, optional): The value to substitute for the variable in the equation. Defaults to "".
+    def result(self):
+        return super().result()
 
-        Returns:
-            str: The result of the equation with the substituted value.
+    def toFunction(self) -> Function:
+        return Function(self.equation)
 
-        """
-        a = self.equation.split("+")[0]
-        a = a.replace(self.name, value)
-        a = resolve(a, self.options)
-        b = self.equation.split("+")[1]
-        self.equation = "Cexp(" + str(a) + self.name + ") + " + str(-int(b) / int(a))
-        return self.toHumanRedeable()
+    def toEquation(self) -> Equation:
+        return Equation(self.equation)

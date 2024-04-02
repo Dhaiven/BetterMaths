@@ -1,4 +1,3 @@
-import time
 from BetterMaths import *
 import timeit
 
@@ -62,3 +61,35 @@ def compareEvalAndSum(start, end, equation: str, nbrOfExecution):
 compareEvalAndSum(1, 10, "2", 1000)
 compareEvalAndSum(1, 10, "2x", 1000)
 compareEvalAndSum(1, 10, "2x+7", 1000)
+
+
+
+"""
+Unknow value in equation must be x
+"""
+def compareEvalAndProd(start, end, equation: str, nbrOfExecution):
+    resultEval = 1
+    for i in range(start, end + 1):
+        resultEval *= eval(equation.replace("x", "*" + str(i)))
+    if resultEval != Prod(start, end, equation).result():
+        raise Exception("The result of " + equation + " is " + str(resultEval) + " for eval but is " + str(Prod(start, end, equation).result()) + " for Prod")
+
+    def executeEval(start, end, equation: str, nbrOfExecution):
+        for i in range(nbrOfExecution):
+            for j in range(start, end + 1):
+                eval(equation.replace("x", "*" + str(i)))
+
+    t = timeit.Timer(lambda: executeEval(start, end, equation, nbrOfExecution))
+    evalTime = t.timeit(1)
+
+    t = timeit.Timer(lambda: Prod(start, end, equation).result())
+    sumTime = t.timeit(nbrOfExecution)
+
+    if sumTime >= evalTime:
+        raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Prod")
+    print(equation + " executed in " + str(evalTime - sumTime) + " less eval")
+
+
+compareEvalAndProd(1, 10, "2", 1000)
+compareEvalAndProd(1, 10, "2x", 1000)
+compareEvalAndProd(1, 10, "2x+7", 1000)
