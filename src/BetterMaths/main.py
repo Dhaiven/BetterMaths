@@ -250,9 +250,10 @@ class Equation:
         self.humanEquation = equation
         
         self.equation = self.humanEquation
-        for froms, to in self.__getProgramReadable__().items():
+        a = self.__getProgramReadable__()
+        for froms in a:
             if froms in self.equation: # Just for optimisation
-                self.equation = self.equation.replace(froms, to)
+                self.equation = self.equation.replace(froms, a.get(froms))
 
         self.options = {}
         if "args" in args and len(args.get("args")) != 0:
@@ -292,10 +293,7 @@ class Equation:
     
     def pow(self, equation: str) -> float:
         values = equation.split("*")
-        result = self.__resolve__(values.pop())
-        while len(values) > 0:
-            result *= self.__resolve__(values.pop())
-        return result
+        return math.prod([self.__resolve__(v) for v in values])
     
     def power(self, equation: str) -> float:
         values = equation.split("**")
