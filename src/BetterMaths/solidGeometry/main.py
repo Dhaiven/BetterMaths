@@ -109,6 +109,17 @@ class Point:
     
     
     def vector(self, point) -> Vector:
+        """
+        Calculates the vector between the current point and the given point.
+
+        Args:
+            point: The point to calculate the vector to.
+
+        Returns:
+            A Vector object representing the vector between the two points.
+        """
+        return pointsVector(self, point)
+    def vector(self, point) -> Vector:
         return pointsVector(self,point)
 
 
