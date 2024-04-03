@@ -64,15 +64,15 @@ class Vector:
         """
         return coplanar(self, u, v)
 
-    def inPlane(self, plane) -> "Vector":
+    def inPlane(self, plane) -> "bool":
         """
-        Projects the vector onto a given plane.
+        Checks if the vector is in the plane.
 
         Args:
-            plane (object): The plane onto which the vector should be projected.
+            plane (object): The plane.
 
         Returns:
-            Vector: The projected vector.
+            bool: If the vector is in the plane.
         """
         return inPlane(self, plane)
     
