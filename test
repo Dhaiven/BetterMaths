@@ -1,0 +1,130 @@
+class Graphe :
+    """
+    on définit le graphe via sa matrice d'adjacence
+    """
+    def __init__ (self, n : int) -> 'Graphe' :
+        self.madj = [ n*[0] for i in range(n) ]
+    def nbSommets(self) -> int :
+        return len( self.madj )
+    def existSommet(self, i : int) -> bool :
+        return 0 <= i and i < self.nbSommets()
+    
+    # Exo 17
+    def ajouterArc(self, i : int, j : int) -> None :
+        if self.existSommet(i) and self.existSommet(j):
+            self.madj[i][j] += 1
+
+    def existArc(self, i : int, j : int) -> bool :
+        return self.madj[i][j] > 0
+    
+    # Exo 18
+    def retirerArc(self, i : int, j : int) -> None :
+        if self.existSommet(i) and self.existSommet(j) and self.existArc(i, j) :
+            self.madj[i][j] -= 1
+    
+    def voisins(self, i : int) -> list :
+        lvoisins = []
+        for j in range( self.nbSommets() ) :
+            if self.existArc(i, j) :
+                lvoisins += [ j ]
+        return lvoisins
+    def validChemin(self, lsommets : list) -> bool :
+        for i in range( len(lsommets)-1 ) :
+            if not self.existArc(lsommets[i], lsommets[i+1]) :
+                return False
+        return True
+    
+    def parcoursProfondeur(self, sc : int, svisites : list, avisites : list) -> None :
+        if sc not in svisites : # terminaison
+            svisites += [ sc ]
+            for sv in self.voisins( sc ) : # hérédité
+                self.parcoursProfondeur(sv, svisites, avisites)
+    
+    def existeChemin(self, si : int, sf : int) -> bool :
+        lvisites = []
+        self.parcoursProfondeur(si, lvisites)
+        return sf in lvisites
+    
+
+    # Exo 19
+    def afficheArcs(self) -> None:
+        for i in self.madj:
+            for j in i:
+                print(self.voisins(j))
+    
+
+    # Exo 20
+    def degre(self, i: int) -> int:
+        return len(self.voisins(i))
+    
+    # Exo 21
+    def degreMax(self) -> int:
+        sommet = 0
+        maxDegre = self.madj[0][0]
+        for i in range(self.nbSommets()):
+            sommetDegree = self.degre(i)
+            if sommetDegree > maxDegre:
+                maxDegre = sommetDegree
+                sommet = i
+        return sommet
+    
+    # Exo 22
+    def sommets_degreMax(self) -> list:
+        sommets = {}
+        for i in range(self.nbSommets()):
+            sommets[i] = self.degre(i)
+
+        maxSommets = []
+        maxDegre = max(sommets.values())
+        for key, values in sommets.items():
+            if values == maxDegre:
+                maxSommets.append(key)
+        return maxSommets
+    
+    # ExO 23
+    def totalArcsO(self) -> int:
+        result = 0
+        for i in self.madj:
+            for j in i:
+                result += j
+        return result
+    
+    # Exo 24
+    def totalArcsNO(self) -> int:
+        result = 0
+        for i in self.madj:
+            for j in i:
+                result += j
+        return result
+    
+    # Exo 25
+    def precedents(self, i: int) -> list:
+        result = []
+        for s in range(self.nbSommets()):
+            if len(self.voisins(s)) == i:
+                result.append(s)
+        return result
+    
+# Exo 26
+def graphePossibleArbre(g: "Graphe") -> bool:
+    for i in range(g.nbSommets()):
+        voisinsNbr = len(g.voisins(i))
+        if voisinsNbr != 0 or voisinsNbr != 1 or voisinsNbr != 2:
+            return False
+    return True
+
+def arbre2graphe(ab: "Arbre") -> "Graphe"
+
+
+graphe = Graphe(4)
+graphe.ajouterArc(2, 1)
+graphe.ajouterArc(1, 2)
+graphe.ajouterArc(0, 2)
+graphe.ajouterArc(1, 3)
+graphe.afficheArcs()
+print(graphe.sommets_degreMax())
+print(graphe.totalArcsO())
+print(graphe.precedents(1))
+print(graphePossibleArbre(graphe))
+graphe.retirerArc(1, 3)
+print(graphePossibleArbre(graphe))
