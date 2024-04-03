@@ -1,5 +1,3 @@
-import math
-
 class Point:
     """
     Represents a point in a two-dimensional space.
@@ -94,3 +92,7 @@ rect = Rectangle(fig)
 print(rect)
 square = Square(fig)
 print(square)
+circle = Circle(Figure([A, B]))
+triangle = Triangle(Figure([A, B, C]))
+print(circle)
+print(triangle)
