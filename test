@@ -104,16 +104,6 @@ class Graphe :
             if len(self.voisins(s)) == i:
                 result.append(s)
         return result
-    
-# Exo 26
-def graphePossibleArbre(g: "Graphe") -> bool:
-    for i in range(g.nbSommets()):
-        voisinsNbr = len(g.voisins(i))
-        if voisinsNbr != 0 or voisinsNbr != 1 or voisinsNbr != 2:
-            return False
-    return True
-
-def arbre2graphe(ab: "Arbre") -> "Graphe"
 
 
 graphe = Graphe(4)
@@ -122,9 +112,8 @@ graphe.ajouterArc(1, 2)
 graphe.ajouterArc(0, 2)
 graphe.ajouterArc(1, 3)
 graphe.afficheArcs()
+print(graphe.degre())
 print(graphe.sommets_degreMax())
 print(graphe.totalArcsO())
+print(graphe.totalArcsNO())
 print(graphe.precedents(1))
-print(graphePossibleArbre(graphe))
-graphe.retirerArc(1, 3)
-print(graphePossibleArbre(graphe))
