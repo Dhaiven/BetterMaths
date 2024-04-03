@@ -138,8 +138,8 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     Returns:
         The result of the resolved calculation.
     """
-    equation = Equation(calcul, args=options)
-    return equation.result()
+    expression = Expression(calcul, args=options)
+    return expression.result()
 
 
 
@@ -200,60 +200,60 @@ for func in functions:
 
 programReadable["atan2*("] = "atan2("
 
-class Equation:
+class Expression:
     """
-    Represents a mathematical equation.
+    Represents a mathematical expression.
 
     Attributes:
-        equation (str): The equation in program-readable format.
-        humanEquation (str): The equation in human-readable format.
-        options (dict): Options for evaluating the equation.
+        expression (str): The expression in program-readable format.
+        humanExpression (str): The expression in human-readable format.
+        options (dict): Options for evaluating the expression.
 
     Methods:
-        __init__(self, equation: str, **args): Initializes a new Equation object.
-        setOption(self, options: dict): Sets the options for the equation.
-        toHumanRedeable(self): Converts the equation to human-readable format.
-        toProgramRedeable(self) -> str: Converts the equation to program-readable format.
-        result(self) -> float: Evaluates the equation and returns the result.
-        split(self, separator) -> list[Equation]: Splits the equation into multiple equations based on the separator.
-        __transformOther__(self, other) -> tuple[str, dict[Option]]: Transforms the other equation or value into a tuple of equation and options.
-        __add__(self, other) -> Equation: Adds the other equation or value to the current equation.
-        __radd__(self, other) -> Equation: Adds the current equation to the other equation or value.
-        __sub__(self, other) -> Equation: Subtracts the other equation or value from the current equation.
-        __rsub__(self, other) -> Equation: Subtracts the current equation from the other equation or value.
-        __mul__(self, other) -> Equation: Multiplies the current equation with the other equation or value.
-        __rmul__(self, other) -> Equation: Multiplies the other equation or value with the current equation.
-        __pow__(self, other, mod: int = None) -> Equation: Raises the current equation to the power of the other equation or value.
-        __rpow__(self, other, mod: int = None) -> Equation: Raises the other equation or value to the power of the current equation.
-        __floordiv__(self, other) -> Equation: Performs floor division of the current equation by the other equation or value.
-        __rfloordiv__(self, other) -> Equation: Performs floor division of the other equation or value by the current equation.
-        __truediv__(self, other) -> Equation: Performs true division of the current equation by the other equation or value.
-        __rtruediv__(self, other) -> Equation: Performs true division of the other equation or value by the current equation.
-        __mod__(self, other) -> Equation: Performs modulo operation of the current equation by the other equation or value.
-        __rmod__(self, other) -> Equation: Performs modulo operation of the other equation or value by the current equation.
-        __divmod__(self, other) -> tuple[int, int]: Performs divmod operation of the current equation by the other equation or value.
-        __rdivmod__(self, other) -> tuple[int, int]: Performs divmod operation of the other equation or value by the current equation.
-        __neg__(self) -> Equation: Negates the current equation.
-        __eq__(self, other) -> bool: Checks if the current equation is equal to the other equation or value.
-        __ne__(self, other) -> bool: Checks if the current equation is not equal to the other equation or value.
-        __lt__(self, other) -> bool: Checks if the current equation is less than the other equation or value.
-        __le__(self, other) -> bool: Checks if the current equation is less than or equal to the other equation or value.
+        __init__(self, expression: str, **args): Initializes a new Expression object.
+        setOption(self, options: dict): Sets the options for the expression.
+        toHumanRedeable(self): Converts the expression to human-readable format.
+        toProgramRedeable(self) -> str: Converts the expression to program-readable format.
+        result(self) -> float: Evaluates the expression and returns the result.
+        split(self, separator) -> list[Expression]: Splits the expression into multiple expressions based on the separator.
+        __transformOther__(self, other) -> tuple[str, dict[Option]]: Transforms the other expression or value into a tuple of expression and options.
+        __add__(self, other) -> Expression: Adds the other expression or value to the current expression.
+        __radd__(self, other) -> Expression: Adds the current expression to the other expression or value.
+        __sub__(self, other) -> Expression: Subtracts the other expression or value from the current expression.
+        __rsub__(self, other) -> Expression: Subtracts the current expression from the other expression or value.
+        __mul__(self, other) -> Expression: Multiplies the current expression with the other expression or value.
+        __rmul__(self, other) -> Expression: Multiplies the other expression or value with the current expression.
+        __pow__(self, other, mod: int = None) -> Expression: Raises the current expression to the power of the other expression or value.
+        __rpow__(self, other, mod: int = None) -> Expression: Raises the other expression or value to the power of the current expression.
+        __floordiv__(self, other) -> Expression: Performs floor division of the current expression by the other expression or value.
+        __rfloordiv__(self, other) -> Expression: Performs floor division of the other expression or value by the current expression.
+        __truediv__(self, other) -> Expression: Performs true division of the current expression by the other expression or value.
+        __rtruediv__(self, other) -> Expression: Performs true division of the other expression or value by the current expression.
+        __mod__(self, other) -> Expression: Performs modulo operation of the current expression by the other expression or value.
+        __rmod__(self, other) -> Expression: Performs modulo operation of the other expression or value by the current expression.
+        __divmod__(self, other) -> tuple[int, int]: Performs divmod operation of the current expression by the other expression or value.
+        __rdivmod__(self, other) -> tuple[int, int]: Performs divmod operation of the other expression or value by the current expression.
+        __neg__(self) -> Expression: Negates the current expression.
+        __eq__(self, other) -> bool: Checks if the current expression is equal to the other expression or value.
+        __ne__(self, other) -> bool: Checks if the current expression is not equal to the other expression or value.
+        __lt__(self, other) -> bool: Checks if the current expression is less than the other expression or value.
+        __le__(self, other) -> bool: Checks if the current expression is less than or equal to the other expression or value.
     """
     
-    def __init__(self, equation: str, **args):
+    def __init__(self, expression: str, **args):
         for froms in humanReadable:
-            if froms in equation: # Just for optimisation
-                equation = equation.replace(froms, humanReadable.get(froms))
+            if froms in expression: # Just for optimisation
+                expression = expression.replace(froms, humanReadable.get(froms))
         #If we have +number at the beginning
-        while equation.startswith("+"):
-            equation = equation[1:]
-        self.humanEquation = equation
+        while expression.startswith("+"):
+            expression = expression[1:]
+        self.humanExpression = expression
         
-        self.equation = self.humanEquation
+        self.expression = self.humanExpression
         a = self.__getProgramReadable__()
         for froms in a:
-            if froms in self.equation: # Just for optimisation
-                self.equation = self.equation.replace(froms, a.get(froms))
+            if froms in self.expression: # Just for optimisation
+                self.expression = self.expression.replace(froms, a.get(froms))
 
         self.options = {}
         if "args" in args and len(args.get("args")) != 0:
@@ -266,73 +266,73 @@ class Equation:
         self.options = options
 
     def toHumanRedeable(self) -> str:
-        return self.humanEquation
+        return self.humanExpression
     
     def toProgramRedeable(self) -> str:
-        return self.equation
+        return self.expression
     
     def __getProgramReadable__(self) -> dict:
         return programReadable
 
     def result(self) -> float:
         try:
-            return self.__resolve__(self.equation)
+            return self.__resolve__(self.expression)
         except OverflowError:
             return math.inf
         
     
-    def sum(self, equation: str) -> float:
-        values = equation.split("+")
+    def sum(self, expression: str) -> float:
+        values = expression.split("+")
         result = 0
         for value in values:
             result += self.__resolve__(value)
         return result
     
-    def sub(self, equation: str):
-        return eval(equation)
+    def sub(self, expression: str):
+        return eval(expression)
     
-    def pow(self, equation: str) -> float:
-        values = equation.split("*")
+    def pow(self, expression: str) -> float:
+        values = expression.split("*")
         result = self.__resolve__(values.pop())
         for value in values:
             result *= self.__resolve__(value)
         return result
     
-    def power(self, equation: str) -> float:
-        values = equation.split("**")
+    def power(self, expression: str) -> float:
+        values = expression.split("**")
         result = self.__resolve__(values.pop())
         while len(values) > 0:
             result = self.__resolve__(values.pop()) ** result
         return result
     
-    def divide(self, equation: str) -> float:
-        values = equation.split("/")
+    def divide(self, expression: str) -> float:
+        values = expression.split("/")
         result = self.__resolve__(values.pop(0))
         for value in values:
             result /= self.__resolve__(value)
         return result
     
-    def floordivide(self, equation: str) -> float:
-        values = equation.split("//")
+    def floordivide(self, expression: str) -> float:
+        values = expression.split("//")
         result = self.__resolve__(values.pop(0))
         for value in values:
             result //= self.__resolve__(value)
         return result
     
-    def modulo(self, equation: str) -> float:
-        values = equation.split("%")
+    def modulo(self, expression: str) -> float:
+        values = expression.split("%")
         result = self.__resolve__(values.pop(0))
         for value in values:
             result %= self.__resolve__(value)
         return result
 
-    def __resolve__(self, equation: str) -> float:
-        if "(" in equation:
-            start = equation.find("(")
+    def __resolve__(self, expression: str) -> float:
+        if "(" in expression:
+            start = expression.find("(")
             nbrCanBePassed = 1
             end = -1
-            for i in range(start + 1, len(equation)):
-                element = equation[i]
+            for i in range(start + 1, len(expression)):
+                element = expression[i]
                 if element == "(":
                     nbrCanBePassed += 1
                 elif element == ")":
@@ -341,176 +341,176 @@ class Equation:
                         end = i
                         break
 
-            inParenthese = equation[start + 1:end]
+            inParenthese = expression[start + 1:end]
             if "," in inParenthese:
                 value = ",".join([str(self.__resolve__(v)) for v in inParenthese.split(",")])
             else:
                 value = self.__resolve__(inParenthese)
             
             for key in range(minNameLenght, maxNameLenght):
-                func = functions.get(equation[start - key:start])
+                func = functions.get(expression[start - key:start])
                 if func != None:
                     value = func(value, self.options)
                     start -= key
                     break
 
-            return self.__resolve__(equation[:start] + str(value) + equation[end + 1:])
+            return self.__resolve__(expression[:start] + str(value) + expression[end + 1:])
         #Factorial
-        elif "!" in equation:
-            start = equation.find("!")
+        elif "!" in expression:
+            start = expression.find("!")
             mustBeFactorial = ""
             for i in range(start - 1, -1, -1):
-                if equation[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
-                    mustBeFactorial = equation[i] + mustBeFactorial
+                if expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                    mustBeFactorial = expression[i] + mustBeFactorial
                 else:
                     break
-            return self.__resolve__(equation[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + equation[start + 1:])
-        elif "+" in equation:
-            return self.sum(equation)
-        elif "-" in equation:
-            return self.sub(equation)
-        elif "//" in equation:
-            return self.floordivide(equation)
-        elif "/" in equation:
-            return self.divide(equation)
-        elif "%" in equation:
-            return self.modulo(equation)
-        elif "**" in equation:
-            return self.power(equation)
-        elif "*" in equation:
-            return self.pow(equation)
+            return self.__resolve__(expression[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + expression[start + 1:])
+        elif "+" in expression:
+            return self.sum(expression)
+        elif "-" in expression:
+            return self.sub(expression)
+        elif "//" in expression:
+            return self.floordivide(expression)
+        elif "/" in expression:
+            return self.divide(expression)
+        elif "%" in expression:
+            return self.modulo(expression)
+        elif "**" in expression:
+            return self.power(expression)
+        elif "*" in expression:
+            return self.pow(expression)
 
-        if "pi" in equation:
-            equation = equation.replace("pi", str(math.pi))
-        if "tau" in equation:
-            equation = equation.replace("tau", str(math.tau))
-        if "e" in equation:
-            equation = equation.replace("e", str(math.e))
-        return float(equation)
+        if "pi" in expression:
+            expression = expression.replace("pi", str(math.pi))
+        if "tau" in expression:
+            expression = expression.replace("tau", str(math.tau))
+        if "e" in expression:
+            expression = expression.replace("e", str(math.e))
+        return float(expression)
     
 
-    def split(self, separator) -> "list[Equation]":
-        splitedEquations = self.humanEquation.split(separator)
+    def split(self, separator) -> "list[Expression]":
+        splitedExpressions = self.humanExpression.split(separator)
         result = []
-        for splitedEquation in splitedEquations:
-            newEquation = Equation(splitedEquation)
-            newEquation.setOption(self.options)
-            result.append(newEquation)
+        for splitedExpression in splitedExpressions:
+            newExpression = Expression(splitedExpression)
+            newExpression.setOption(self.options)
+            result.append(newExpression)
         return result
     
 
     def __transformOther__(self, other) -> "tuple[str, dict[Option]]":
-        otherEquation = ""
+        otherExpression = ""
         options = self.options
-        if type(other) != Equation:
-            otherEquation = str(other)
+        if type(other) != Expression:
+            otherExpression = str(other)
         else:
-            otherEquation = other.humanEquation
+            otherExpression = other.humanExpression
             for key, value in other.options.items():
                 options[key] = value
-        return otherEquation, options
+        return otherExpression, options
 
 
-    def __add__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __add__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation(self.humanEquation + "+" + otherEquation)
+        new = Expression(self.humanExpression + "+" + otherExpression)
         new.setOption(options)
         return new
 
 
-    def __radd__(self, other) -> "Equation":
+    def __radd__(self, other) -> "Expression":
         return self.__add__(other)
 
 
-    def __sub__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __sub__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
         
-        new = Equation(self.humanEquation + "-(" + otherEquation + ")")
+        new = Expression(self.humanExpression + "-(" + otherExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __rsub__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __rsub__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
         
-        new = Equation(otherEquation + "-(" + self.humanEquation + ")")
+        new = Expression(otherExpression + "-(" + self.humanExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __mul__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __mul__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + otherEquation + ")*(" + self.humanEquation + ")")
+        new = Expression("(" + otherExpression + ")*(" + self.humanExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __rmul__(self, other) -> "Equation":
+    def __rmul__(self, other) -> "Expression":
         return self.__mul__(other)
 
 
-    def __pow__(self, other, mod: int = None) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __pow__(self, other, mod: int = None) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + self.humanEquation + ")**(" + otherEquation + ")")
+        new = Expression("(" + self.humanExpression + ")**(" + otherExpression + ")")
         new.setOption(options)
         return new
     
 
-    def __rpow__(self, other, mod: int = None) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __rpow__(self, other, mod: int = None) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + otherEquation + ")**(" + self.humanEquation + ")")
+        new = Expression("(" + otherExpression + ")**(" + self.humanExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __floordiv__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __floordiv__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + self.humanEquation + ")//(" + otherEquation + ")")
+        new = Expression("(" + self.humanExpression + ")//(" + otherExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __rfloordiv__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __rfloordiv__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + otherEquation + ")//(" + self.humanEquation + ")")
+        new = Expression("(" + otherExpression + ")//(" + self.humanExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __truediv__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __truediv__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + self.humanEquation + ")/(" + otherEquation + ")")
+        new = Expression("(" + self.humanExpression + ")/(" + otherExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __rtruediv__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __rtruediv__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + otherEquation + ")/(" + self.humanEquation + ")")
+        new = Expression("(" + otherExpression + ")/(" + self.humanExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __mod__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __mod__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + self.humanEquation + ")%(" + otherEquation + ")")
+        new = Expression("(" + self.humanExpression + ")%(" + otherExpression + ")")
         new.setOption(options)
         return new
 
 
-    def __rmod__(self, other) -> "Equation":
-        otherEquation, options = self.__transformOther__(other)
+    def __rmod__(self, other) -> "Expression":
+        otherExpression, options = self.__transformOther__(other)
 
-        new = Equation("(" + otherEquation + ")%(" + self.humanEquation + ")")
+        new = Expression("(" + otherExpression + ")%(" + self.humanExpression + ")")
         new.setOption(options)
         return new
     
@@ -518,7 +518,7 @@ class Equation:
     def __divmod__(self, other) -> 'tuple[int, int]':
         result = self.result()
         otherResult = 0
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = float(other)
         else:
             otherResult = other.result()
@@ -528,22 +528,22 @@ class Equation:
     def __rdivmod__(self, other) -> 'tuple[int, int]':
         result = self.result()
         otherResult = 0
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = float(other)
         else:
             otherResult = other.result()
         return (otherResult // result, otherResult % result)
 
 
-    def __neg__(self) -> "Equation":
-        new = Equation("-(" + self.humanEquation + ")")
+    def __neg__(self) -> "Expression":
+        new = Expression("-(" + self.humanExpression + ")")
         new.setOption(self.options)
         return new
     
 
     def __eq__(self, other) -> bool:
         otherResult = ""
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = resolve(str(other))
         else:
             otherResult = other.result()
@@ -552,7 +552,7 @@ class Equation:
     
     def __ne__(self, other) -> bool:
         otherResult = ""
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = resolve(str(other))
         else:
             otherResult = other.result()
@@ -561,7 +561,7 @@ class Equation:
     
     def __lt__(self, other) -> bool:
         otherResult = ""
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = resolve(str(other))
         else:
             otherResult = other.result()
@@ -571,7 +571,7 @@ class Equation:
 
     def __le__(self, other) -> bool:
         otherResult = ""
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = resolve(str(other))
         else:
             otherResult = other.result()
@@ -581,7 +581,7 @@ class Equation:
 
     def __gt__(self, other) -> bool:
         otherResult = ""
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = resolve(str(other))
         else:
             otherResult = other.result()
@@ -591,7 +591,7 @@ class Equation:
 
     def __ge__(self, other) -> bool:
         otherResult = ""
-        if type(other) != Equation:
+        if type(other) != Expression:
             otherResult = resolve(str(other))
         else:
             otherResult = other.result()
@@ -625,17 +625,17 @@ class Equation:
 
 
     def __str__(self) -> str:
-        return self.humanEquation
+        return self.humanExpression
 
 
 
-class Function(Equation):
-    def __init__(self, equation, name = "x", **args):
+class Function(Expression):
+    def __init__(self, expression, name = "x", **args):
         self.name = name
-        super().__init__(equation, **args)
+        super().__init__(expression, **args)
 
         self.cachedResults = {}
-        self.hasUnknow = self.equation.find(name) != -1
+        self.hasUnknow = self.expression.find(name) != -1
     
     def __getProgramReadable__(self) -> dict:
         replacables = super().__getProgramReadable__()
@@ -649,43 +649,43 @@ class Function(Equation):
         if value in self.cachedResults:
             return self.cachedResults[value]
         if self.hasUnknow:
-            r = resolve(self.equation.replace(self.name, value), self.options)
+            r = resolve(self.expression.replace(self.name, value), self.options)
         else:
-            r = resolve(self.equation, self.options)
+            r = resolve(self.expression, self.options)
         self.cachedResults[value] = r
         return r
     
     def prime(self) -> "Function":
-        variable = self.equation.find(self.name)
+        variable = self.expression.find(self.name)
         result = 1
         for i in range(variable, 0, -1):
-            if self.equation[i] == "*":
-                result *= self.equation[i - 1]
+            if self.expression[i] == "*":
+                result *= self.expression[i - 1]
                 i -= 1
-        for i in range(variable, len(self.equation), 1):
-            if self.equation[i] == "*":
-                result *= self.equation[i + 1]
+        for i in range(variable, len(self.expression), 1):
+            if self.expression[i] == "*":
+                result *= self.expression[i + 1]
                 i += 1
         return result
 
 
 
 
-class Sum(Equation):
-    def __init__(self, start, end, equation, unknow = "x"):
+class Sum(Expression):
+    def __init__(self, start, end, expression, unknow = "x"):
         self.start = start
         self.end = end
 
         self.name = unknow
 
-        super().__init__(equation)
+        super().__init__(expression)
 
-        self.hasUnknow = self.equation.find(self.name) != -1
+        self.hasUnknow = self.expression.find(self.name) != -1
 
         if self.hasUnknow:
-            self.equation = "+".join([self.equation.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
+            self.expression = "+".join([self.expression.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
         else:
-            self.equation = str((self.end + 1) - self.start) + "*" + self.equation
+            self.expression = str((self.end + 1) - self.start) + "*" + self.expression
     
 
     def __getProgramReadable__(self) -> dict:
@@ -698,24 +698,24 @@ class Sum(Equation):
         return super().result()
 
     def toFunction(self) -> Function:
-        return Function(self.equation)
+        return Function(self.expression)
 
-    def toEquation(self) -> Equation:
-        return Equation(self.equation)
+    def toExpression(self) -> Expression:
+        return Expression(self.expression)
 
 
     def __add__(self, other):
         if type(other) != Sum:
             raise BaseException("Cannot sum " + str(self) + " and " + str(other))
 
-        newEquation = None
+        newExpression = None
         if other.start == self.start and other.end == self.end:
-            newEquation = Sum(self.start, self.end, self.humanEquation + "+" + other.humanEquation)
-        elif other.humanEquation == self.humanEquation:
+            newExpression = Sum(self.start, self.end, self.humanExpression + "+" + other.humanExpression)
+        elif other.humanExpression == self.humanExpression:
             if other.start == self.end or other.end == self.start:
-                newEquation = Sum(min(self.start, other.start), max(self.end, other.end) + 1, self.humanEquation)
+                newExpression = Sum(min(self.start, other.start), max(self.end, other.end) + 1, self.humanExpression)
             elif other.start - 1 == self.end or other.end + 1 == self.start:
-                newEquation = Sum(min(self.start, other.start), max(self.end, other.end), self.humanEquation)
+                newExpression = Sum(min(self.start, other.start), max(self.end, other.end), self.humanExpression)
         else:
             newStart = min(self.start, other.start)
             newEnd = min(self.end, other.end)
@@ -726,40 +726,40 @@ class Sum(Equation):
             else:
                 result = self.end / other.end
 
-            humanEquation = None
+            humanExpression = None
             if other.start > self.start:
-                humanEquation = other.start / self.start
+                humanExpression = other.start / self.start
             else:
-                humanEquation = self.start / other.start
+                humanExpression = self.start / other.start
 
-            newEquation = Sum(newStart, newEnd, str(humanEquation) + "+" + str(result))
+            newExpression = Sum(newStart, newEnd, str(humanExpression) + "+" + str(result))
         
-        if newEquation != None and newEquation.result() == (self.result() + other.result()):
-            newEquation.setOption(self.options)
-            return newEquation
+        if newExpression != None and newExpression.result() == (self.result() + other.result()):
+            newExpression.setOption(self.options)
+            return newExpression
         raise BaseException("Cannot sum " + str(self) + " and " + str(other))
 
 
-    def __radd__(self, other) -> "Equation":
+    def __radd__(self, other) -> "Expression":
         return self.__add__(other)
 
 
 
-class Prod(Equation):
-    def __init__(self, start, end, equation, unknow = "x"):
+class Prod(Expression):
+    def __init__(self, start, end, expression, unknow = "x"):
         self.start = start
         self.end = end
 
         self.name = unknow
 
-        super().__init__(equation)
+        super().__init__(expression)
         
-        self.hasUnknow = self.equation.find(self.name) != -1
+        self.hasUnknow = self.expression.find(self.name) != -1
 
         if self.hasUnknow:
-            self.equation = "*" .join(["(" + self.equation.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
+            self.expression = "*" .join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
         else:
-            self.equation =  "(" + self.equation + ")**" + str((self.end + 1) - self.start)
+            self.expression =  "(" + self.expression + ")**" + str((self.end + 1) - self.start)
 
         
     def __getProgramReadable__(self) -> dict:
@@ -772,7 +772,7 @@ class Prod(Equation):
         return super().result()
 
     def toFunction(self) -> Function:
-        return Function(self.equation)
+        return Function(self.expression)
 
-    def toEquation(self) -> Equation:
-        return Equation(self.equation)
+    def toExpression(self) -> Expression:
+        return Expression(self.expression)

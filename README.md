@@ -6,17 +6,17 @@
 
 
 ## Little documentation
-This module add ```Equation``` class that allow resolve equation in string
+This module add ```Expression``` class that allow resolve expression in string
 ```python
-# Create an equation
-equation = Equation("2+7*8cos(3)")
-# Resolve this equation
-equation.result() # 57.92325394625613
+# Create an expression
+expression = Expression("2+7*8cos(3)")
+# Resolve this expression
+expression.result() # 57.92325394625613
 ```
 
-### Why use ```Equation``` and not ```eval``` ?
-- ```Equation``` is faster than ```eval``` (See [tests/main.py](https://github.com/Dhaiven/BetterMaths/blob/main/tests/main.py))
-- ```Equation``` support parenthese, mathematical formulas like ```cos``` and magics numbers like ```π```
+### Why use ```Expression``` and not ```eval``` ?
+- ```Expression``` is faster than ```eval``` (See [tests/main.py](https://github.com/Dhaiven/BetterMaths/blob/main/tests/main.py))
+- ```Expression``` support parenthese, mathematical formulas like ```cos``` and magics numbers like ```π```
 
 
 ### See the [Wiki](https://github.com/Dhaiven/BetterMaths/wiki) for more documentations

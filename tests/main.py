@@ -1,62 +1,62 @@
 from BetterMaths import *
 import timeit
 
-def compareEvalAndEquation(equation, nbrOfExecution = 10000):
-    if eval(equation) != Equation(equation).result():
-        raise Exception("The result of " + equation + " is " + str(eval(equation)) + " for eval but is " + str(Equation(equation).result()) + " for Equation")
+def compareEvalAndExpression(expression, nbrOfExecution = 10000):
+    if eval(expression) != Expression(expression).result():
+        raise Exception("The result of " + expression + " is " + str(eval(expression)) + " for eval but is " + str(Expression(expression).result()) + " for Expression")
 
-    t = timeit.Timer(lambda: eval(equation))
+    t = timeit.Timer(lambda: eval(expression))
     evalTime = t.timeit(nbrOfExecution)
 
-    a = Equation(equation)
+    a = Expression(expression)
     t = timeit.Timer(lambda: a.result())
-    equationTime = t.timeit(nbrOfExecution)
+    expressionTime = t.timeit(nbrOfExecution)
 
-    if equationTime >= evalTime + 0.1:
-        raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(equationTime) + " with Equation")
-    print(equation + " executed in " + str(evalTime - equationTime) + " less eval")
+    if expressionTime >= evalTime + 0.1:
+        raise Exception("The result of " + expression + " take " + str(evalTime) + " with eval and " + str(expressionTime) + " with Expression")
+    print(expression + " executed in " + str(evalTime - expressionTime) + " less eval")
     
 
-compareEvalAndEquation("2*2", 10000)
-compareEvalAndEquation("2*4*7", 10000)
-compareEvalAndEquation("2**3**4", 10000)
+compareEvalAndExpression("2*2", 10000)
+compareEvalAndExpression("2*4*7", 10000)
+compareEvalAndExpression("2**3**4", 10000)
 
-compareEvalAndEquation("7//5", 10000)
-compareEvalAndEquation("7//2//3", 10000)
-compareEvalAndEquation("2/2", 10000)
-compareEvalAndEquation("21/2/3", 10000)
-compareEvalAndEquation("7%5", 10000)
-compareEvalAndEquation("7%2%3", 10000)
+compareEvalAndExpression("7//5", 10000)
+compareEvalAndExpression("7//2//3", 10000)
+compareEvalAndExpression("2/2", 10000)
+compareEvalAndExpression("21/2/3", 10000)
+compareEvalAndExpression("7%5", 10000)
+compareEvalAndExpression("7%2%3", 10000)
 
-compareEvalAndEquation("2+22", 10000)
-compareEvalAndEquation("26+98+70", 10000)
-compareEvalAndEquation("+6+9+12", 10000)
+compareEvalAndExpression("2+22", 10000)
+compareEvalAndExpression("26+98+70", 10000)
+compareEvalAndExpression("+6+9+12", 10000)
 
 
 """
-Unknow value in equation must be x
+Unknow value in expression must be x
 """
-def compareEvalAndSum(start, end, equation: str, nbrOfExecution):
+def compareEvalAndSum(start, end, expression: str, nbrOfExecution):
     resultEval = 0
     for i in range(start, end + 1):
-        resultEval += eval(equation.replace("x", "*" + str(i)))
-    if resultEval != Sum(start, end, equation).result():
-        raise Exception("The result of " + equation + " is " + str(resultEval) + " for eval but is " + str(Sum(start, end, equation).result()) + " for Sum")
+        resultEval += eval(expression.replace("x", "*" + str(i)))
+    if resultEval != Sum(start, end, expression).result():
+        raise Exception("The result of " + expression + " is " + str(resultEval) + " for eval but is " + str(Sum(start, end, expression).result()) + " for Sum")
 
-    def executeEval(start, end, equation: str, nbrOfExecution):
+    def executeEval(start, end, expression: str, nbrOfExecution):
         for i in range(nbrOfExecution):
             for j in range(start, end + 1):
-                eval(equation.replace("x", "*" + str(i)))
+                eval(expression.replace("x", "*" + str(i)))
 
-    t = timeit.Timer(lambda: executeEval(start, end, equation, nbrOfExecution))
+    t = timeit.Timer(lambda: executeEval(start, end, expression, nbrOfExecution))
     evalTime = t.timeit(1)
 
-    t = timeit.Timer(lambda: Sum(start, end, equation).result())
+    t = timeit.Timer(lambda: Sum(start, end, expression).result())
     sumTime = t.timeit(nbrOfExecution)
 
     if sumTime >= evalTime:
-        raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Sum")
-    print("Sum of " + equation + " executed in " + str(evalTime - sumTime) + " less eval")
+        raise Exception("The result of " + expression + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Sum")
+    print("Sum of " + expression + " executed in " + str(evalTime - sumTime) + " less eval")
 
 compareEvalAndSum(1, 10, "2", 1000)
 compareEvalAndSum(1, 10, "2x", 1000)
@@ -65,29 +65,29 @@ compareEvalAndSum(1, 10, "2x+7", 1000)
 
 
 """
-Unknow value in equation must be x
+Unknow value in expression must be x
 """
-def compareEvalAndProd(start, end, equation: str, nbrOfExecution):
+def compareEvalAndProd(start, end, expression: str, nbrOfExecution):
     resultEval = 1
     for i in range(start, end + 1):
-        resultEval *= eval(equation.replace("x", "*" + str(i)))
-    if resultEval != Prod(start, end, equation).result():
-        raise Exception("The result of " + equation + " is " + str(resultEval) + " for eval but is " + str(Prod(start, end, equation).result()) + " for Prod")
+        resultEval *= eval(expression.replace("x", "*" + str(i)))
+    if resultEval != Prod(start, end, expression).result():
+        raise Exception("The result of " + expression + " is " + str(resultEval) + " for eval but is " + str(Prod(start, end, expression).result()) + " for Prod")
 
-    def executeEval(start, end, equation: str, nbrOfExecution):
+    def executeEval(start, end, expression: str, nbrOfExecution):
         for i in range(nbrOfExecution):
             for j in range(start, end + 1):
-                eval(equation.replace("x", "*" + str(i)))
+                eval(expression.replace("x", "*" + str(i)))
 
-    t = timeit.Timer(lambda: executeEval(start, end, equation, nbrOfExecution))
+    t = timeit.Timer(lambda: executeEval(start, end, expression, nbrOfExecution))
     evalTime = t.timeit(1)
 
-    t = timeit.Timer(lambda: Prod(start, end, equation).result())
+    t = timeit.Timer(lambda: Prod(start, end, expression).result())
     sumTime = t.timeit(nbrOfExecution)
 
     if sumTime >= evalTime:
-        raise Exception("The result of " + equation + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Prod")
-    print("Prod of " + equation + " executed in " + str(evalTime - sumTime) + " less eval")
+        raise Exception("The result of " + expression + " take " + str(evalTime) + " with eval and " + str(sumTime) + " with Prod")
+    print("Prod of " + expression + " executed in " + str(evalTime - sumTime) + " less eval")
 
 
 compareEvalAndProd(1, 10, "2", 1000)

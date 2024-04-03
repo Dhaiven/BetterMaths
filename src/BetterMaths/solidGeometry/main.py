@@ -286,24 +286,24 @@ def inPlane(u: Vector, plane: Plane):
     j = plane.j
     return coplanar(u,i,j)
 
-def solveSystem(equations: "list[str]") -> list:
+def solveSystem(expressions: "list[str]") -> list:
     """
-    Solves a system of equations.
+    Solves a system of expressions.
 
     Args:
-        equations (list[str]): A list of equations.
+        expressions (list[str]): A list of expressions.
 
     Returns:
         list: A list of solutions.
 
     Raises:
-        ValueError: If the equations list contains less than 2 equations.
+        ValueError: If the expressions list contains less than 2 expressions.
     """
-    if len(equations) < 2:
-        raise ValueError("The equations list must contain at least 2 equations!")
+    if len(expressions) < 2:
+        raise ValueError("The expressions list must contain at least 2 expressions!")
     alphabet = [chr(i) for i in range(97, 123)]
     symbols = sympy.symbols(alphabet)
-    solutions = sympy.solve(equations, symbols)
+    solutions = sympy.solve(expressions, symbols)
     return solutions
 
 def pointsVector(pointA: Point, pointB: Point):
@@ -524,15 +524,15 @@ def perpendicularPlanes(P1: Plane, P2: Plane) -> bool:
     return orthogonalVectors(P1.normal, P2.normal)
 
 
-def cartesianEquation(P: Plane) -> str:
+def cartesianExpression(P: Plane) -> str:
     """
-    Returns the Cartesian equation of a plane.
+    Returns the Cartesian expression of a plane.
 
     Args:
         P (Plane): The plane.
 
     Returns:
-        str: The Cartesian equation of the plane.
+        str: The Cartesian expression of the plane.
     """
     if P.normal==None:
         raise ValueError("You did not specify a normal vector for the plane! Use normalVector() to add one.")
@@ -562,5 +562,5 @@ all=[
     "normalVector",
     "createNormalVector",
     "perpendicularPlanes",
-    "cartesianEquation"
+    "cartesianExpression"
 ]

@@ -1,4 +1,4 @@
-from BetterMaths.main import Equation
+from BetterMaths.main import Expression
 import math
 
 class Event:
@@ -31,19 +31,19 @@ class Binomial:
         coeficient = math.factorial(self.n) / (math.factorial(k) * math.factorial(self.n - k))
         return coeficient * (self.p ** k) * ((1 - self.p) ** (self.n - k))
     
-    def toEquation(self, k):
+    def toExpression(self, k):
         """
-        Converts the binomial distribution to an equation.
+        Converts the binomial distribution to an expression.
 
         Args:
             k (int): The number of successes.
 
         Returns:
-            Equation: The equation representing the binomial distribution.
+            Expression: The expression representing the binomial distribution.
         """
         n = str(self.n)
         p = str(self.p)
-        return Equation(f"({n}!)/({k}!*({n}-{k})!)*{p}**{k}*(1-{p})**({n}-{k})")
+        return Expression(f"({n}!)/({k}!*({n}-{k})!)*{p}**{k}*(1-{p})**({n}-{k})")
 
     def expectedValue(self):
         """
