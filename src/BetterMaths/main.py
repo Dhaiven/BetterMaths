@@ -776,3 +776,36 @@ class Prod(Expression):
 
     def toExpression(self) -> Expression:
         return Expression(self.expression)
+
+
+class Equation(Expression):
+    def __init__(self, equation: str, unknow: str = "x"):
+        self.equation = equation
+        self.unknow = unknow
+
+        self.name = unknow
+
+        super().__init__(equation)
+
+        
+    def __getProgramReadable__(self) -> dict:
+        replacables = super().__getProgramReadable__()
+        for nbr in range(0, 10):
+            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
+        return replacables
+    
+    def isGood(self, value: str) -> bool:
+        split = self.toProgramRedeable().replace(self.unknow, value).split("=")
+
+        return resolve(split[0]) == resolve(split[1])
+    
+    def find(self) -> float:
+        result = 0
+
+        return result
+
+
+equation = Equation("2x+2=0")
+print(equation.isGood("2"))
+print(equation.isGood("-1"))
+print(equation.find())
