@@ -795,17 +795,46 @@ class Equation(Expression):
         return replacables
     
     def isGood(self, value: str) -> bool:
-        split = self.toProgramRedeable().replace(self.unknow, value).split("=")
+        split = self.toProgramRedeable().replace(self.unknow, str(value)).split("=")
 
         return resolve(split[0]) == resolve(split[1])
     
+    def __getOcuurences__(self, start) -> str:
+        end = len(self.toProgramRedeable())
+        for i in range(start + 1, len(self.toProgramRedeable())):
+            if not self.expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                end = i
+                break
+
+        return self.toProgramRedeable()[start+1:end]
+    
+    def __getPowOcuurences__(self, start) -> str:
+        end = 0
+        for i in range(start - 1, -1, -1):
+            if not self.expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*"]:
+                end = i
+                break
+
+        return self.toProgramRedeable()[end:start-1]
+
     def find(self) -> float:
-        result = 0
+        newEquation = self.expression
+        if "+" in newEquation:
+            occurences = self.__getOcuurences__(self.expression.find("+"))
+            newEquation = newEquation.replace("+" + occurences, "")
+            newEquation = newEquation.split("=")[0] + "=" + newEquation.split("=")[1] + "-(" + occurences + ")"
+        if self.unknow in newEquation:
+            occurences = self.__getPowOcuurences__(self.expression.find(self.unknow))
+            newEquation = newEquation.replace(occurences + "*", "")
+            newEquation = newEquation.split("=")[0] + "=(" + newEquation.split("=")[1] + ")/(" + occurences + ")"
+        print(newEquation)
+        return resolve(newEquation.split("=")[1])
 
-        return result
 
-
-equation = Equation("2x+2=0")
+equation = Equation("2x=-2")
 print(equation.isGood("2"))
 print(equation.isGood("-1"))
-print(equation.find())
+
+valueOfX = equation.find()
+print(valueOfX)
+print(equation.isGood(valueOfX))
