@@ -818,23 +818,32 @@ class Equation(Expression):
         return self.toProgramRedeable()[end:start-1]
 
     def find(self) -> float:
-        newEquation = self.expression
-        if "+" in newEquation:
-            occurences = self.__getOcuurences__(self.expression.find("+"))
-            newEquation = newEquation.replace("+" + occurences, "")
-            newEquation = newEquation.split("=")[0] + "=" + newEquation.split("=")[1] + "-(" + occurences + ")"
-        if self.unknow in newEquation:
-            occurences = self.__getPowOcuurences__(self.expression.find(self.unknow))
-            newEquation = newEquation.replace(occurences + "*", "")
-            newEquation = newEquation.split("=")[0] + "=(" + newEquation.split("=")[1] + ")/(" + occurences + ")"
+        left, right = self.expression.split("=")
+        lst = [left, right]
+        while len(lst) > 0:
+            element = lst.pop()
+            if "+" in newEquation:
+                occurences = self.__getOcuurences__(element.find("+"))
+                newEquation = newEquation.replace("+" + occurences, "")
+                newEquation = left + "=" + right + "-(" + occurences + ")"
+            if self.unknow in newEquation:
+                occurences = self.__getPowOcuurences__(self.expression.find(self.unknow))
+                newEquation = newEquation.replace(occurences + "*", "")
+                newEquation = left + "=(" + right + ")/(" + occurences + ")"
         print(newEquation)
         return resolve(newEquation.split("=")[1])
+    
+    def find2(self) -> float:
+        left, right = self.toProgramRedeable().split("=")
+
+        if self.unknow in left:
+            return self.__resolve__(right)
 
 
 equation = Equation("2x=-2")
 print(equation.isGood("2"))
 print(equation.isGood("-1"))
 
-valueOfX = equation.find()
+valueOfX = equation.find2()
 print(valueOfX)
 print(equation.isGood(valueOfX))
