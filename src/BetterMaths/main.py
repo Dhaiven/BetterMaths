@@ -1,5 +1,4 @@
-import math
-import enum
+import math, enum
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -293,14 +292,14 @@ class Expression:
     
     def pow(self, expression: str) -> float:
         values = expression.split("*")
-        result = self.__resolve__(values.pop())
+        result = 0
         for value in values:
             result *= self.__resolve__(value)
         return result
     
     def power(self, expression: str) -> float:
         values = expression.split("**")
-        result = self.__resolve__(values.pop())
+        result = 0
         while len(values) > 0:
             result = self.__resolve__(values.pop()) ** result
         return result
