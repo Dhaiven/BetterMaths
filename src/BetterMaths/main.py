@@ -140,7 +140,12 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     expression = Expression(calcul, args=options)
     return expression.result()
 
-
+def isNumber(number):
+    try:
+        float(number)
+        return True
+    except Exception:
+        return False
 
 functions = {
     "abs": lambda value, options: abs(value),
@@ -292,14 +297,14 @@ class Expression:
     
     def pow(self, expression: str) -> float:
         values = expression.split("*")
-        result = 0
+        result = 1
         for value in values:
             result *= self.__resolve__(value)
         return result
     
     def power(self, expression: str) -> float:
         values = expression.split("**")
-        result = 0
+        result = 1
         while len(values) > 0:
             result = self.__resolve__(values.pop()) ** result
         return result
@@ -640,6 +645,7 @@ class Function(Expression):
         replacables = super().__getProgramReadable__()
         for nbr in range(0, 10):
             replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
+            replacables[self.name + str(nbr)] = self.name + "*" + str(nbr)
         return replacables
 
 
@@ -830,12 +836,3 @@ class Equation(Expression):
                 left = left.replace(occurences + "*", "")
                 right = "(" + right + ")/(" + occurences + ")"
         return resolve(right)
-
-
-equation = Equation("2x=-2")
-print(equation.isGood("2"))
-print(equation.isGood("-1"))
-
-valueOfX = equation.find()
-print(valueOfX)
-print(equation.isGood(valueOfX))

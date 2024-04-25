@@ -1,4 +1,6 @@
-class Sequence:
+import BetterMaths.main as bm
+
+class Sequence(bm.Function):
     """
     Represents a mathematical sequence.
 
@@ -22,51 +24,54 @@ class Sequence:
     """
 
     def __init__(self, initial_term, expression, type=0):
+        super().__init__(expression, "Un")
+
         self.initial_term = initial_term
-        self.expression = expression
         if self.isArithmetic() != False:
-            self.type=1
-        elif self.isGeometric() !=False:
-            self.type=2
+            self.type = 1
+        elif self.isGeometric() != False:
+            self.type = 2
         else:
-            self.type=type
+            self.type = type
     
-    def isArithmetic(self):
+    def isArithmetic(self) -> bool:
         """
         Checks if the sequence is arithmetic.
-
-        Returns:
-        - If false:
-                bool
-        - If true:
-                tuple: (True, difference)
         """
-        sequence = self.sequence(2)
-        difference = sequence[1] - sequence[0]
-        for i in range(1, len(sequence)):
-            if sequence[i] - sequence[i - 1] != difference:
-                return False
-        return (True, difference)
+        for separator in ["+", "-"]:
+            if separator in self.expression:
+                for part in self.expression.split(separator):
+                    if part != "Un" and not bm.isNumber(part):
+                        return False
+                return True
+        return False
 
-    def isGeometric(self):
+    def isGeometric(self) -> bool:
         """
         Checks if the sequence is geometric.
-
-        Returns:
-        - If false:
-                bool
-        - If true:
-                tuple: (True, ratio)
         """
-        sequence = self.sequence(2)
-        ratio = sequence[1] / sequence[0]
-        for i in range(1, len(sequence)):
-            if sequence[i] / sequence[i - 1] != ratio:
-                return False
-        return (True, ratio)
+        newExpression = self.expression
+        if "*" in newExpression:
+            newExpression = newExpression.replace("*", "")
+        newExpression = newExpression.replace("Un", "")
+        return bm.isNumber(newExpression)
+
+    def reason(self) -> float:
+        result = 0
+        if self.isArithmetic():
+            for separator in ["+", "-"]:
+                if separator in self.expression:
+                    for part in self.expression.split(separator):
+                        if part != "Un":
+                            result = self.__resolve__(str(result) + separator + part)
+        elif self.isGeometric():
+            result = 1
+            for part in self.expression.split("*"):
+                if part != "Un":
+                    result *= self.__resolve__(part)
+        return result
 
 
-    
     def sequence(self,n) -> "list[int]":
         """
         Return the values of the n first terms of the sequence.
@@ -83,34 +88,28 @@ class Sequence:
             sequence.append(term)
         return sequence
     
-    def variation(self,n=0) -> str:
+    def variation(self) -> str:
         """
         Calculates the variation of the sequence. It can be deacreasing, increasing or constant.
-        Calculate from n to n+1000 (default 0), only for arithmetics and geometrics.
+        Only for arithmetics and geometrics.
 
         Returns:
         - str: The variation of the sequence.
         """
-        if n!=0 and self.type not in [1,2]:
-            raise ValueError("Calculate from n!=0 only if the sequence is arithmetic or geometric!")
-        elif n<0:
-            raise ValueError("n must be grater or equal to 0!")
-        sequence = self.sequence(1000)
-        variation = None
-        for i in range(1, len(sequence)):
-            if sequence[i] > sequence[i - 1]:
-                if i > 2 and variation!="increasing":
-                    return None
-                variation = "increasing"
-            elif sequence[i] < sequence[i - 1]:
-                if i > 2 and variation!="decreasing":
-                    return None
-                variation = "decreasing"
-            elif sequence[i] == sequence[i-1]:
-                if i > 2 and variation!="constant":
-                    return None
-                variation="constant"
-        return variation
+
+        result = "constant"
+        reason = self.reason()
+        if self.isArithmetic():
+            if reason > 0:
+                result = "increasing"
+            elif reason < 0:
+                result = "decreasing"
+        elif self.isGeometric():
+            if reason > 1:
+                result = "increasing"
+            elif reason < 1:
+                result = "decreasing"
+        return result
 
     def artithmeticSequence(self, n: int , k: int) -> "list[int]":
         """
@@ -247,6 +246,10 @@ class Sequence:
     def __repr__(self):
         return f"Sequence({self.initial_term}, {self.expression}, {self.type})"
 
-all=[
+all = [
     "Sequence"
 ]
+
+s = Sequence(0, "Un+2+2")
+print(s.reason())
+print(s.variation())
