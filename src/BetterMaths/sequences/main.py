@@ -1,4 +1,5 @@
 import BetterMaths.main as bm
+import math
 
 class Sequence(bm.Function):
     """
@@ -128,7 +129,7 @@ class Sequence(bm.Function):
         """
         if self.type != 1:
             raise ValueError("The sequence is not arithmetic!")
-        dif = self.isArithmetic()[1]
+        dif = self.reason()
         sequence = [self.initial_term + n * dif]
         for i in range(k):
             term = sequence[-1] + dif
@@ -152,7 +153,7 @@ class Sequence(bm.Function):
         """
         if self.type != 2:
             raise ValueError("The sequence is not geometric!")
-        ratio = self.isGeometric()[1]
+        ratio = self.reason()
         sequence = [self.initial_term * ratio ** n]
         for i in range(k):
             term = sequence[-1] * ratio
@@ -174,11 +175,11 @@ class Sequence(bm.Function):
             return self.artithmeticSequence(n, 0)[-1]
         elif self.type == 2:
             return self.geometricSequence(n, 0)[-1]
-        return self.sequence()[-1]
+        return self.sequence(n)[-1]
     
-    def arithmeticSum(self, p: int, n: int) -> float:
+    def sum(self, p: int, n: int) -> float:
         """
-        Returns the sum of the terms of an arithmetic sequence from p to n.
+        Returns the sum of the terms from p to n.
 
         Parameters:
         - p (int): The postition of the first term in the sequence.
@@ -186,60 +187,40 @@ class Sequence(bm.Function):
 
         Returns:
         - The sum of the sequence.
-
         """
-        if self.type!=1:
-            raise ValueError("The sequence must be arithmetic!")
-        elif p<0:
+        if p < 0:
             raise ValueError("p must be greater or equal to 0!")
-        elif n<p:
+        elif n < p:
             raise ValueError("n must be grater than p!")
-        sum = (n-p+1)*((self.term(p)+self.term(n))/2)
-        return sum
-    
-    def geometricSum(self, p: int, n: int) -> float:
-        """
-        Returns the sum of the terms of a geometric sequence from p to n.
+        
+        if self.isArithmetic():
+            return (n - p + 1) * ((self.term(p) + self.term(n)) / 2)
+        elif self.isGeometric():
+            ratio = self.reason()
+            return self.term(p) * ((1 - ratio ** (n - p + 1)) / (1 - ratio))
+        raise ValueError("Sequance must be arithmetic or geometric")
 
-        Parameters:
-        - p (int): The postition of the first term in the sequence.
-        - n (int): The position of the second term in the sequence (must be greater than p).
 
-        Returns:
-        - The sum of the sequence.
-
-        """
-        if self.type!=2:
-            raise ValueError("The sequence must be geometric!")
-        elif p<0:
-            raise ValueError("p must be greater or equal to 0!")
-        elif n<p:
-            raise ValueError("n must be grater than p!")
-        ratio=self.isGeometric()[1]
-        sum=self.term(p)*((1-ratio**(n-p+1))/(1-ratio))
-        return sum
-    
-    def infLimit(self):
+    def infLimit(self) -> float:
         """
         Returns the limit of the sequence when n tends to infinity (for now, only do smth with arithmetic and geometric).
 
         Returns:
         - The limit of the sequence (if it exists, else None).
-
         """
-        if self.type==1:
-            if self.isArithmetic()[1]>0:
-                return "+inf"
+        if self.isArithmetic():
+            if self.reason() > 0:
+                return math.inf
             else:
-                return "-inf"
-        elif self.type==2:
-            geometricRatio = self.isGeometric()[1]
-            if geometricRatio>1:
-                if self.initial_term>0:
-                    return "+inf"
+                return -math.inf
+        elif self.isGeometric():
+            reason = self.reason()
+            if reason > 1:
+                if self.initial_term > 0:
+                    return math.inf
                 else:
-                    return "-inf"
-            elif -1<geometricRatio<1:
+                    return -math.inf
+            elif -1 < reason < 1:
                 return 0
         return None
     
@@ -249,7 +230,3 @@ class Sequence(bm.Function):
 all = [
     "Sequence"
 ]
-
-s = Sequence(0, "Un+2+2")
-print(s.reason())
-print(s.variation())
