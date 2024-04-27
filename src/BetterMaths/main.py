@@ -633,7 +633,7 @@ class Expression:
 
 
 
-class Function(Expression):
+class UnknowExpression(Expression):
     def __init__(self, expression, name = "x", **args):
         self.name = name
         super().__init__(expression, **args)
@@ -659,51 +659,24 @@ class Function(Expression):
             r = resolve(self.expression, self.options)
         self.cachedResults[value] = r
         return r
-    
-    def prime(self) -> "Function":
-        variable = self.expression.find(self.name)
-        result = 1
-        for i in range(variable, 0, -1):
-            if self.expression[i] == "*":
-                result *= self.expression[i - 1]
-                i -= 1
-        for i in range(variable, len(self.expression), 1):
-            if self.expression[i] == "*":
-                result *= self.expression[i + 1]
-                i += 1
-        return result
 
 
 
 
-class Sum(Expression):
+class Sum(UnknowExpression):
     def __init__(self, start, end, expression, unknow = "x"):
         self.start = start
         self.end = end
 
-        self.name = unknow
-
-        super().__init__(expression)
-
-        self.hasUnknow = self.expression.find(self.name) != -1
+        super().__init__(expression, unknow)
 
         if self.hasUnknow:
             self.expression = "+".join([self.expression.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
         else:
             self.expression = str((self.end + 1) - self.start) + "*" + self.expression
-    
 
-    def __getProgramReadable__(self) -> dict:
-        replacables = super().__getProgramReadable__()
-        for nbr in range(0, 10):
-            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
-        return replacables
-
-    def result(self):
-        return super().result()
-
-    def toFunction(self) -> Function:
-        return Function(self.expression)
+    def result(self) -> float:
+        return self.toExpression().result()
 
     def toExpression(self) -> Expression:
         return Expression(self.expression)
@@ -773,31 +746,14 @@ class Prod(Expression):
             replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
         return replacables
 
-    def result(self):
-        return super().result()
-
-    def toFunction(self) -> Function:
-        return Function(self.expression)
-
     def toExpression(self) -> Expression:
         return Expression(self.expression)
 
 
-class Equation(Expression):
+class Equation(UnknowExpression):
     def __init__(self, equation: str, unknow: str = "x"):
-        self.equation = equation
-        self.unknow = unknow
+        super().__init__(equation, unknow)
 
-        self.name = unknow
-
-        super().__init__(equation)
-
-        
-    def __getProgramReadable__(self) -> dict:
-        replacables = super().__getProgramReadable__()
-        for nbr in range(0, 10):
-            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
-        return replacables
     
     def isGood(self, value: str) -> bool:
         split = self.toProgramRedeable().replace(self.unknow, str(value)).split("=")

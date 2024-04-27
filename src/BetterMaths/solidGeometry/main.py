@@ -97,7 +97,7 @@ class Point:
         z (float): The z-coordinate of the point.
     """
 
-    def __init__(self, x, y, z, plane=None):
+    def __init__(self, x: float, y: float, z: float, plane=None):
         self.x = x
         self.y = y
         self.z = z

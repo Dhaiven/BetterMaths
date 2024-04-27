@@ -1,7 +1,7 @@
 import BetterMaths.main as bm
 import math
 
-class Sequence(bm.Function):
+class Sequence(bm.UnknowExpression):
     """
     Represents a mathematical sequence.
 

@@ -14,7 +14,7 @@ class Binomial:
         p (float): The probability of success in each trial.
     """
 
-    def __init__(self, n, p) -> None:
+    def __init__(self, n: int, p: float) -> None:
         self.n = n
         self.p = p
     
@@ -31,7 +31,7 @@ class Binomial:
         coeficient = math.factorial(self.n) / (math.factorial(k) * math.factorial(self.n - k))
         return coeficient * (self.p ** k) * ((1 - self.p) ** (self.n - k))
     
-    def toExpression(self, k):
+    def toExpression(self, k) -> Expression:
         """
         Converts the binomial distribution to an expression.
 
@@ -45,7 +45,7 @@ class Binomial:
         p = str(self.p)
         return Expression(f"({n}!)/({k}!*({n}-{k})!)*{p}**{k}*(1-{p})**({n}-{k})")
 
-    def expectedValue(self):
+    def expectedValue(self) -> float:
         """
         Calculates the expected value of the binomial distribution.
 
@@ -54,7 +54,7 @@ class Binomial:
         """
         return self.n * self.p
     
-    def variance(self):
+    def variance(self) -> float:
         """
         Calculates the variance of the binomial distribution.
 
@@ -63,7 +63,7 @@ class Binomial:
         """
         return self.expectedValue() * (1 - self.p)
     
-    def standardDeviation(self):
+    def standardDeviation(self) -> float:
         """
         Calculates the standard variation of the binomial distribution.
                    
@@ -72,14 +72,14 @@ class Binomial:
         """
         return math.sqrt(self.variance())
     
-    def confidenceInterval(self,confidence:float) -> tuple:
+    def confidenceInterval(self, confidence: float) -> tuple:
         """
         Calculates the interval for the confidence.
 
         Returns:
             tuple: The confidence interval (a,b).
         """
-        if not 0<=confidence<=100:
+        if not 0 <= confidence <= 100:
             raise ValueError("The confidence level must be between 0 and 100%")
         under=0
         under_total=0

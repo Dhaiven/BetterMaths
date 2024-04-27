@@ -7,7 +7,7 @@ class Point:
         y (float): The y-coordinate of the point.
     """
 
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
 
@@ -19,8 +19,8 @@ class Point:
 
 
 class Figure:
-    def __init__(self, points: "list[Point]"):
-        self.points=points
+    def __init__(self, points: list[Point]):
+        self.points = points
 
     def __repr__(self) -> str:
         return f"Figur({self.points})"
