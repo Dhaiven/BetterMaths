@@ -1,4 +1,4 @@
-import math, enum
+import math, enum, time
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -667,14 +667,14 @@ class Sum(UnknowExpression):
     def __init__(self, start, end, expression, unknow = "x"):
         self.start = start
         self.end = end
-
+        
         super().__init__(expression, unknow)
 
         if self.hasUnknow:
             self.expression = "+".join([self.expression.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
         else:
             self.expression = str((self.end + 1) - self.start) + "*" + self.expression
-
+    
     def result(self) -> float:
         return self.toExpression().result()
 
@@ -723,28 +723,20 @@ class Sum(UnknowExpression):
 
 
 
-class Prod(Expression):
+class Prod(UnknowExpression):
     def __init__(self, start, end, expression, unknow = "x"):
         self.start = start
         self.end = end
 
-        self.name = unknow
-
-        super().__init__(expression)
-        
-        self.hasUnknow = self.expression.find(self.name) != -1
+        super().__init__(expression, unknow)
 
         if self.hasUnknow:
             self.expression = "*" .join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
         else:
             self.expression =  "(" + self.expression + ")**" + str((self.end + 1) - self.start)
 
-        
-    def __getProgramReadable__(self) -> dict:
-        replacables = super().__getProgramReadable__()
-        for nbr in range(0, 10):
-            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
-        return replacables
+    def result(self) -> float:
+        return self.toExpression().result()
 
     def toExpression(self) -> Expression:
         return Expression(self.expression)
@@ -792,3 +784,25 @@ class Equation(UnknowExpression):
                 left = left.replace(occurences + "*", "")
                 right = "(" + right + ")/(" + occurences + ")"
         return resolve(right)
+    
+
+"""
+ADD:
+- better name for UnknowExpression (may be EquationBase)
+- try because i think there are many bugs
+- Sum(1, 100, "2x") equals to é * Sum(1, 100, "x") (more faster) (remove constant from sum)
+"""
+""" TEST
+s = Sum(1, 100, "x")
+se = Sum(1, 100, "2x")
+
+start = time.time()
+for i in range(10000):
+    2 * s.result()
+print(time.time() - start)
+
+start = time.time()
+for i in range(10000):
+    se.result()
+print(time.time() - start)
+"""
