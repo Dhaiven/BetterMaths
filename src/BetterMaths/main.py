@@ -746,11 +746,26 @@ class Equation(UnknowExpression):
     def __init__(self, equation: str, unknow: str = "x"):
         super().__init__(equation, unknow)
 
+        for s in ["<=", ">=", "<", ">", "="]:
+            if s in self.expression:
+                self.separator = s
+                break
+
     
     def isGood(self, value: str) -> bool:
-        split = self.toProgramRedeable().replace(self.unknow, str(value)).split("=")
+        split = self.toProgramRedeable().replace(self.name, str(value)).split(self.separator)
 
-        return resolve(split[0]) == resolve(split[1])
+        match (self.separator):
+            case "<=":
+                return resolve(split[0]) <= resolve(split[1])
+            case ">=":
+                return resolve(split[0]) >= resolve(split[1])
+            case "<":
+                return resolve(split[0]) < resolve(split[1])
+            case ">":
+                return resolve(split[0]) > resolve(split[1])
+            case "=":
+                return resolve(split[0]) == resolve(split[1])
     
     def __getOcuurences__(self, start) -> str:
         end = len(self.toProgramRedeable())
@@ -771,16 +786,16 @@ class Equation(UnknowExpression):
         return self.toProgramRedeable()[end:start-1]
 
     def find(self) -> float:
-        left, right = self.expression.split("=")
+        left, right = self.expression.split(self.separator)
         lst = [left, right]
-        while left != self.unknow:
+        while left != self.name:
             element = lst.pop()
             if "+" in element:
                 occurences = self.__getOcuurences__(element.find("+"))
                 left = left.replace("+" + occurences, "")
                 right += "-(" + occurences + ")"
-            if self.unknow in element:
-                occurences = self.__getPowOcuurences__(self.expression.find(self.unknow))
+            if self.name in element:
+                occurences = self.__getPowOcuurences__(self.expression.find(self.name))
                 left = left.replace(occurences + "*", "")
                 right = "(" + right + ")/(" + occurences + ")"
         return resolve(right)
@@ -790,7 +805,7 @@ class Equation(UnknowExpression):
 ADD:
 - better name for UnknowExpression (may be EquationBase)
 - try because i think there are many bugs
-- Sum(1, 100, "2x") equals to é * Sum(1, 100, "x") (more faster) (remove constant from sum)
+- Sum(1, 100, "2x") equals to 2 * Sum(1, 100, "x") (more faster) (remove constant from sum)
 """
 """ TEST
 s = Sum(1, 100, "x")
@@ -806,3 +821,8 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
+
+equation = Equation("x+2<2+7")
+e = equation.find()
+print(e)
+print(equation.isGood(e - 0.00001))
