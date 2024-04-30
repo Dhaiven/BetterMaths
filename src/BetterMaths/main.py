@@ -277,120 +277,110 @@ class Expression:
     
     def __getProgramReadable__(self) -> dict:
         return programReadable
-
-    def result(self) -> float:
-        try:
-            return self.__resolve__(self.expression)
-        except OverflowError:
-            return math.inf
-        
-    
-    def sum(self, expression: str) -> float:
-        values = expression.split("+")
-        result = 0
-        for value in values:
-            result += self.__resolve__(value)
-        return result
     
     def sub(self, expression: str):
         return eval(expression)
-    
-    def pow(self, expression: str) -> float:
-        values = expression.split("*")
-        result = 1
-        for value in values:
-            result *= self.__resolve__(value)
-        return result
-    
-    def power(self, expression: str) -> float:
-        values = expression.split("**")
-        result = 1
-        while len(values) > 0:
-            result = self.__resolve__(values.pop()) ** result
-        return result
-    
-    def divide(self, expression: str) -> float:
-        values = expression.split("/")
-        result = self.__resolve__(values.pop(0))
-        for value in values:
-            result /= self.__resolve__(value)
-        return result
-    
-    def floordivide(self, expression: str) -> float:
-        values = expression.split("//")
-        result = self.__resolve__(values.pop(0))
-        for value in values:
-            result //= self.__resolve__(value)
-        return result
-    
-    def modulo(self, expression: str) -> float:
-        values = expression.split("%")
-        result = self.__resolve__(values.pop(0))
-        for value in values:
-            result %= self.__resolve__(value)
-        return result
 
-    def __resolve__(self, expression: str) -> float:
-        if "(" in expression:
-            start = expression.find("(")
-            nbrCanBePassed = 1
-            end = -1
-            for i in range(start + 1, len(expression)):
-                element = expression[i]
-                if element == "(":
-                    nbrCanBePassed += 1
-                elif element == ")":
-                    nbrCanBePassed -= 1
-                    if nbrCanBePassed == 0:
-                        end = i
+    def result(self) -> float:
+        tab = [self.expression]
+        result = 0
+        separators = []
+        while len(tab) > 0:
+            if len(separators) > 0 and separators[-1] in ["//", "/", "%"]:
+                expression = tab.pop(0)
+            else:
+                expression = tab.pop()
+            if "(" in expression:
+                start = expression.find("(")
+                nbrCanBePassed = 1
+                end = -1
+                for i in range(start + 1, len(expression)):
+                    element = expression[i]
+                    if element == "(":
+                        nbrCanBePassed += 1
+                    elif element == ")":
+                        nbrCanBePassed -= 1
+                        if nbrCanBePassed == 0:
+                            end = i
+                            break
+
+                inParenthese = expression[start + 1:end]
+                if "," in inParenthese:
+                    value = ",".join([str(self.__resolve__(v)) for v in inParenthese.split(",")])
+                else:
+                    value = self.__resolve__(inParenthese)
+                
+                for key in range(minNameLenght, maxNameLenght):
+                    func = functions.get(expression[start - key:start])
+                    if func != None:
+                        value = func(value, self.options)
+                        start -= key
                         break
 
-            inParenthese = expression[start + 1:end]
-            if "," in inParenthese:
-                value = ",".join([str(self.__resolve__(v)) for v in inParenthese.split(",")])
-            else:
-                value = self.__resolve__(inParenthese)
+                tab += [expression[:start] + str(value) + expression[end + 1:]]
+                continue
+            #Factorial
+            elif "!" in expression:
+                start = expression.find("!")
+                mustBeFactorial = ""
+                for i in range(start - 1, -1, -1):
+                    if isNumber(expression[i]):
+                        mustBeFactorial = expression[i] + mustBeFactorial
+                    else:
+                        break
+                tab += [expression[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + expression[start + 1:]]
+                continue
+            continues = True
+            for separator in ["+",
+                              #"-",
+                               "//", "/", "%", "**", "*"]:
+                if separator in expression:
+                    values = expression.split(separator)
+                    tab += values
+                    separators += [separator] * len(values)
+                    continues = False
+                    break
+            if "-" in expression:
+                return self.sub(expression)
             
-            for key in range(minNameLenght, maxNameLenght):
-                func = functions.get(expression[start - key:start])
-                if func != None:
-                    value = func(value, self.options)
-                    start -= key
-                    break
-
-            return self.__resolve__(expression[:start] + str(value) + expression[end + 1:])
-        #Factorial
-        elif "!" in expression:
-            start = expression.find("!")
-            mustBeFactorial = ""
-            for i in range(start - 1, -1, -1):
-                if expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
-                    mustBeFactorial = expression[i] + mustBeFactorial
-                else:
-                    break
-            return self.__resolve__(expression[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + expression[start + 1:])
-        elif "+" in expression:
-            return self.sum(expression)
-        elif "-" in expression:
-            return self.sub(expression)
-        elif "//" in expression:
-            return self.floordivide(expression)
-        elif "/" in expression:
-            return self.divide(expression)
-        elif "%" in expression:
-            return self.modulo(expression)
-        elif "**" in expression:
-            return self.power(expression)
-        elif "*" in expression:
-            return self.pow(expression)
-
-        if "pi" in expression:
-            expression = expression.replace("pi", str(math.pi))
-        if "tau" in expression:
-            expression = expression.replace("tau", str(math.tau))
-        if "e" in expression:
-            expression = expression.replace("e", str(math.e))
-        return float(expression)
+            if continues:
+                if "pi" in expression:
+                    expression = expression.replace("pi", str(math.pi))
+                if "tau" in expression:
+                    expression = expression.replace("tau", str(math.tau))
+                if "e" in expression:
+                    expression = expression.replace("e", str(math.e))
+                
+                separator = separators.pop()
+                print(expression)
+                try:
+                    if separator == "+":
+                        result += float(expression)
+                    elif separator == "-":
+                        result -= float(expression)
+                    elif separator == "//":
+                        if result == 0:
+                            result = 1
+                        result //= float(expression)
+                    elif separator == "/":
+                        if result == 0:
+                            result = 1
+                        result /= float(expression)
+                    elif separator == "%":
+                        if result == 0:
+                            result = 1
+                        result %= float(expression)
+                    elif separator == "**":
+                        if result == 0:
+                            result = 1
+                        result = float(expression) ** result
+                    elif separator == "*":
+                        if result == 0:
+                            result = 1
+                        result *= float(expression)
+                except OverflowError:
+                    return math.inf
+        return result
     
 
     def split(self, separator) -> "list[Expression]":
@@ -821,8 +811,5 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
-equation = Equation("x+2<2+7")
-e = equation.find()
-print(e)
-print(equation.isGood(e - 0.00001))
+e = Expression("7//5")
+print(e.result())
