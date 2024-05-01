@@ -731,12 +731,15 @@ class Prod(UnknowExpression):
         super().__init__(expression, unknow)
 
         if self.hasUnknow:
-            self.expression = "*" .join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
+            self.expression = "*".join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
         else:
             self.expression =  "(" + self.expression + ")**" + str((self.end + 1) - self.start)
 
     def result(self) -> float:
-        return self.toExpression().result()
+        try:
+            return self.__resolve__(self.expression)
+        except OverflowError:
+            return math.inf
 
     def toExpression(self) -> Expression:
         return Expression(self.expression)
@@ -821,8 +824,3 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
-equation = Equation("x+2<2+7")
-e = equation.find()
-print(e)
-print(equation.isGood(e - 0.00001))
