@@ -141,11 +141,10 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     return expression.result()
 
 def isNumber(number):
-    try:
-        float(number)
-        return True
-    except Exception:
-        return False
+    for i in number:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+            return False
+    return True
 
 functions = {
     "abs": lambda value, options: abs(value),
@@ -190,19 +189,6 @@ humanReadable = {
     "-+": "-",
     "--": "+",
 }
-
-programReadable = {
-    "^": "**",
-    ")(": ")*("
-}
-for nbr in range(0, 10):
-    programReadable[str(nbr) + "("] = str(nbr) + "*("
-    for func in functions:
-        programReadable[str(nbr) + func] = str(nbr) + "*" + func
-for func in functions:
-        programReadable[")" + func] = ")*" + func
-
-programReadable["atan2*("] = "atan2("
 
 class Expression:
     """
@@ -253,12 +239,7 @@ class Expression:
             expression = expression[1:]
         self.humanExpression = expression
         
-        self.expression = self.humanExpression
-        a = self.__getProgramReadable__()
-        for froms in a:
-            if froms in self.expression: # Just for optimisation
-                self.expression = self.expression.replace(froms, a.get(froms))
-
+        self.expression = self.__toProgramRedeable__(self.humanExpression)
         self.options = {}
         if "args" in args and len(args.get("args")) != 0:
             self.options = args.get("args")
@@ -275,8 +256,37 @@ class Expression:
     def toProgramRedeable(self) -> str:
         return self.expression
     
-    def __getProgramReadable__(self) -> dict:
-        return programReadable
+    def __toProgramRedeable__(self, expression: str) -> str:
+        programExpression = ""
+        lenght = len(expression)
+        for i in range(lenght):
+            character = expression[i]
+            if not character in ["+", "-", "/", "%", "*"] and not isNumber(character):
+                if character == "^":
+                    e += "**"
+                    continue
+
+                if i > 0:
+                    last = expression[i - 1]
+                else:
+                    last = expression[i]
+                if i < lenght - 1:
+                    next = expression[i + 1]
+                else:
+                    next = expression[i]
+                if character != ")":
+                    if isNumber(last):
+                        programExpression += "*"
+                elif next == "(":
+                    programExpression += character + "*"
+                    continue
+                if character != "(" and isNumber(next):
+                    programExpression += character + "*"
+                    continue
+            programExpression += character
+        if "atan*2*" in programExpression:
+            programExpression = programExpression.replace("atan*2*", "atan2")
+        return programExpression
 
     def result(self) -> float:
         try:
@@ -640,26 +650,16 @@ class UnknowExpression(Expression):
 
         self.cachedResults = {}
         self.hasUnknow = self.expression.find(name) != -1
-    
-    def __getProgramReadable__(self) -> dict:
-        replacables = super().__getProgramReadable__()
-        for nbr in range(0, 10):
-            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
-            replacables[self.name + str(nbr)] = self.name + "*" + str(nbr)
-        return replacables
 
 
     def result(self, value: float) -> float:
         value = str(value)
         if value in self.cachedResults:
             return self.cachedResults[value]
-        if self.hasUnknow:
-            r = resolve(self.expression.replace(self.name, value), self.options)
-        else:
-            r = resolve(self.expression, self.options)
-        self.cachedResults[value] = r
-        return r
-
+        
+        result = self.__resolve__(self.expression.replace(self.name, value) if self.hasUnknow else self.expression)
+        self.cachedResults[value] = result
+        return result
 
 
 
