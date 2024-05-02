@@ -8,11 +8,10 @@ def compareEvalAndExpression(expression, nbrOfExecution = 10000):
     t = timeit.Timer(lambda: eval(expression))
     evalTime = t.timeit(nbrOfExecution)
 
-    a = Expression(expression)
-    t = timeit.Timer(lambda: a.result())
+    t = timeit.Timer(lambda: Expression(expression).result())
     expressionTime = t.timeit(nbrOfExecution)
 
-    if expressionTime >= evalTime + 0.1:
+    if expressionTime >= evalTime:
         raise Exception("The result of " + expression + " take " + str(evalTime) + " with eval and " + str(expressionTime) + " with Expression")
     print(expression + " executed in " + str(evalTime - expressionTime) + " less eval")
     

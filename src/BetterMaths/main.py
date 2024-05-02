@@ -1,4 +1,5 @@
-import math, enum, time
+import math, enum
+from typing import SupportsIndex
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -370,8 +371,8 @@ class Expression:
 
             return self.__resolve__(expression[:start] + str(value) + expression[end + 1:])
         #Factorial
-        elif "!" in expression:
-            start = expression.find("!")
+        start = expression.find("!")
+        if start != -1:
             mustBeFactorial = ""
             for i in range(start - 1, -1, -1):
                 if expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
@@ -529,23 +530,25 @@ class Expression:
         return new
     
 
-    def __divmod__(self, other) -> 'tuple[int, int]':
-        result = self.result()
-        otherResult = 0
+    def __transformOtherResult__(self, other) -> float:
         if type(other) != Expression:
             otherResult = float(other)
         else:
             otherResult = other.result()
+        return otherResult
+
+
+    def __divmod__(self, other) -> 'tuple[int, int]':
+        result = self.result()
+        otherResult = self.__transformOtherResult__(other)
+        
         return (result // otherResult, result % otherResult)
     
 
     def __rdivmod__(self, other) -> 'tuple[int, int]':
         result = self.result()
-        otherResult = 0
-        if type(other) != Expression:
-            otherResult = float(other)
-        else:
-            otherResult = other.result()
+        otherResult = self.__transformOtherResult__(other)
+
         return (otherResult // result, otherResult % result)
 
 
@@ -553,64 +556,30 @@ class Expression:
         new = Expression("-(" + self.humanExpression + ")")
         new.setOption(self.options)
         return new
-    
+
 
     def __eq__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
+        return self.result() == self.__transformOtherResult__(other)
 
-        return self.result() == otherResult
-    
+
     def __ne__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
+        return self.result() != self.__transformOtherResult__(other)
 
-        return self.result() != otherResult
-    
+
     def __lt__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() < otherResult
+        return self.result() < self.__transformOtherResult__(other)
 
 
     def __le__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() <= otherResult
+        return self.result() <= self.__transformOtherResult__(other)
 
 
     def __gt__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() > otherResult
+        return self.result() > self.__transformOtherResult__(other)
 
 
     def __ge__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() >= otherResult
+        return self.result() >= self.__transformOtherResult__(other)
     
 
     def __float__(self) -> float:
@@ -625,8 +594,7 @@ class Expression:
         return abs(self.result())
     
 
-    #TODO: ndigits must be SupportsIndex
-    def __round__(self, ndigits: None = None) -> int:
+    def __round__(self, ndigits: SupportsIndex = None) -> int:
         return round(self.result(), ndigits)
     
 
@@ -806,7 +774,7 @@ class Equation(UnknowExpression):
 
 """
 ADD:
-- better name for UnknowExpression (may be EquationBase)
+- better name for UnknowExpression (maybe EquationBase)
 - try because i think there are many bugs
 - Sum(1, 100, "2x") equals to 2 * Sum(1, 100, "x") (more faster) (remove constant from sum)
 """
