@@ -1,4 +1,4 @@
-import math, enum
+import math, enum, decimal
 from typing import SupportsIndex
 
 class Option(enum.Enum):
@@ -141,6 +141,18 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     expression = Expression(calcul, args=options)
     return expression.result()
 
+
+def factorial(number: int) -> decimal.Decimal:
+    if type(number) != int:
+        raise TypeError("'float' object cannot be interpreted as an integer")
+    if number < 0:
+        raise ValueError("factorial() not defined for negative values")
+    result = decimal.Decimal(number)
+    for i in range(2, number):
+        result = result * decimal.Decimal(i)
+    return result
+
+
 def isNumber(number):
     for i in number:
         if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
@@ -275,7 +287,7 @@ class Expression:
                     next = expression[i + 1]
                 else:
                     next = expression[i]
-                if character != ")":
+                if character != ")" and character != "!":
                     if isNumber(last):
                         programExpression += "*"
                 elif next == "(":
@@ -342,6 +354,8 @@ class Expression:
         return result
 
     def __resolve__(self, expression: str) -> float:
+        if expression == "":
+            return 0
         if "(" in expression:
             start = expression.find("(")
             nbrCanBePassed = 1
@@ -379,7 +393,9 @@ class Expression:
                     mustBeFactorial = expression[i] + mustBeFactorial
                 else:
                     break
-            return self.__resolve__(expression[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + expression[start + 1:])
+            left = self.__resolve__(expression[:start - len(mustBeFactorial)])
+            right = self.__resolve__(expression[start + 1:])
+            return left + factorial(int(mustBeFactorial)) + right
         elif "+" in expression:
             return self.sum(expression)
         elif "-" in expression:
@@ -401,7 +417,7 @@ class Expression:
             expression = expression.replace("tau", str(math.tau))
         if "e" in expression:
             expression = expression.replace("e", str(math.e))
-        return float(expression)
+        return decimal.Decimal(expression)
     
 
     def split(self, separator) -> "list[Expression]":
@@ -792,3 +808,5 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
+
+factorial(-1.1)
