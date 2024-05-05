@@ -149,7 +149,7 @@ def factorial(number: int) -> decimal.Decimal:
         raise ValueError("factorial() not defined for negative values")
     result = decimal.Decimal(number)
     for i in range(2, number):
-        result = result * decimal.Decimal(i)
+        result *= decimal.Decimal(i)
     return result
 
 
@@ -304,6 +304,8 @@ class Expression:
     def result(self) -> float:
         try:
             return self.__resolve__(self.expression)
+        except decimal.Overflow:
+            return math.inf
         except OverflowError:
             return math.inf
         
@@ -356,8 +358,8 @@ class Expression:
     def __resolve__(self, expression: str) -> float:
         if expression == "":
             return 0
-        if "(" in expression:
-            start = expression.find("(")
+        start = expression.find("(")
+        if start != -1:
             nbrCanBePassed = 1
             end = -1
             for i in range(start + 1, len(expression)):
@@ -382,8 +384,10 @@ class Expression:
                     value = func(value, self.options)
                     start -= key
                     break
-
-            return self.__resolve__(expression[:start] + str(value) + expression[end + 1:])
+            
+            left = self.__resolve__(expression[:start])
+            right = self.__resolve__(expression[end + 1:])
+            return left + value + right
         #Factorial
         start = expression.find("!")
         if start != -1:
@@ -808,5 +812,3 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
-factorial(-1.1)
