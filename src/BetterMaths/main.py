@@ -245,11 +245,8 @@ class Expression:
     
     def __init__(self, expression: str, **args):
         for froms in humanReadable:
-            if froms in expression: # Just for optimisation
+            while froms in expression:
                 expression = expression.replace(froms, humanReadable.get(froms))
-        #If we have +number at the beginning
-        while expression.startswith("+"):
-            expression = expression[1:]
         self.humanExpression = expression
         
         self.expression = self.__toProgramRedeable__(self.humanExpression)
@@ -385,9 +382,7 @@ class Expression:
                     start -= key
                     break
             
-            left = self.__resolve__(expression[:start])
-            right = self.__resolve__(expression[end + 1:])
-            return left + value + right
+            return self.__resolve__(expression[:start] + str(value) + expression[end + 1:])
         #Factorial
         start = expression.find("!")
         if start != -1:
@@ -397,9 +392,7 @@ class Expression:
                     mustBeFactorial = expression[i] + mustBeFactorial
                 else:
                     break
-            left = self.__resolve__(expression[:start - len(mustBeFactorial)])
-            right = self.__resolve__(expression[start + 1:])
-            return left + factorial(int(mustBeFactorial)) + right
+            return self.__resolve__(expression[:start - len(mustBeFactorial)] + str(factorial(int(mustBeFactorial))) + expression[start + 1:])
         elif "+" in expression:
             return self.sum(expression)
         elif "-" in expression:
