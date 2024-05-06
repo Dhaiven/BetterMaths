@@ -155,7 +155,7 @@ def factorial(number: int) -> decimal.Decimal:
 
 def isNumber(number):
     for i in number:
-        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]:
             return False
     return True
 
@@ -271,9 +271,9 @@ class Expression:
         lenght = len(expression)
         for i in range(lenght):
             character = expression[i]
-            if not character in ["+", "-", "/", "%", "*"] and not isNumber(character):
+            if not character in ["+", "-", "/", "%", "*", ".", ","] and not isNumber(character):
                 if character == "^":
-                    e += "**"
+                    programExpression += "**"
                     continue
 
                 if i > 0:
@@ -298,63 +298,62 @@ class Expression:
             programExpression = programExpression.replace("atan*2*", "atan2")
         return programExpression
 
-    def result(self) -> float:
+
+    def result(self) -> decimal.Decimal:
         try:
             return self.__resolve__(self.expression)
         except decimal.Overflow:
-            return math.inf
+            return decimal.Decimal(math.inf)
         except OverflowError:
-            return math.inf
+            return decimal.Decimal(math.inf)
         
     
-    def sum(self, expression: str) -> float:
+    def sum(self, expression: str) -> decimal.Decimal:
         values = expression.split("+")
-        result = 0
+        result = self.__resolve__(values.pop())
         for value in values:
             result += self.__resolve__(value)
         return result
     
-    def sub(self, expression: str):
-        return eval(expression)
+    def sub(self, expression: str) -> decimal.Decimal:
+        return decimal.Decimal(eval(expression))
     
-    def pow(self, expression: str) -> float:
+    def pow(self, expression: str) -> decimal.Decimal:
         values = expression.split("*")
-        result = 1
+        result = self.__resolve__(values.pop())
         for value in values:
             result *= self.__resolve__(value)
         return result
     
-    def power(self, expression: str) -> float:
+    def power(self, expression: str) -> decimal.Decimal:
         values = expression.split("**")
-        result = 1
+        result = self.__resolve__(values.pop())
         while len(values) > 0:
             result = self.__resolve__(values.pop()) ** result
         return result
     
-    def divide(self, expression: str) -> float:
+    def divide(self, expression: str) -> decimal.Decimal:
         values = expression.split("/")
         result = self.__resolve__(values.pop(0))
         for value in values:
             result /= self.__resolve__(value)
         return result
     
-    def floordivide(self, expression: str) -> float:
+    def floordivide(self, expression: str) -> decimal.Decimal:
         values = expression.split("//")
         result = self.__resolve__(values.pop(0))
         for value in values:
             result //= self.__resolve__(value)
         return result
     
-    def modulo(self, expression: str) -> float:
+    def modulo(self, expression: str) -> decimal.Decimal:
         values = expression.split("%")
         result = self.__resolve__(values.pop(0))
         for value in values:
             result %= self.__resolve__(value)
         return result
 
-    def __resolve__(self, expression: str) -> float:
-        if expression == "":
-            return 0
+    def __resolve__(self, expression: str) -> decimal.Decimal:
         start = expression.find("(")
         if start != -1:
             nbrCanBePassed = 1
@@ -407,7 +406,9 @@ class Expression:
             return self.power(expression)
         elif "*" in expression:
             return self.pow(expression)
-
+        
+        if "E" in expression:
+            expression = expression.replace("E", "e")
         if "pi" in expression:
             expression = expression.replace("pi", str(math.pi))
         if "tau" in expression:
@@ -805,3 +806,5 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
+
+print(isNumber("1.2"))
