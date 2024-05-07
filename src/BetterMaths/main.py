@@ -267,13 +267,23 @@ class Expression:
         return self.expression
     
     def __toProgramRedeable__(self, expression: str) -> str:
+        if expression[-1] == "E":
+            expression += "+1"
         programExpression = ""
         lenght = len(expression)
-        for i in range(lenght):
+        i = -1
+        while i < lenght - 1:
+            i += 1
             character = expression[i]
             if not character in ["+", "-", "/", "%", "*", ".", ","] and not isNumber(character):
                 if character == "^":
                     programExpression += "**"
+                    continue
+                elif character == "E":
+                    if i > 0:
+                        programExpression += "*"
+                    programExpression += "10**"
+                    i += 1
                     continue
 
                 if i > 0:
@@ -303,8 +313,6 @@ class Expression:
         try:
             return self.__resolve__(self.expression)
         except decimal.Overflow:
-            return decimal.Decimal(math.inf)
-        except OverflowError:
             return decimal.Decimal(math.inf)
         
     
@@ -407,8 +415,6 @@ class Expression:
         elif "*" in expression:
             return self.pow(expression)
         
-        if "E" in expression:
-            expression = expression.replace("E", "e")
         if "pi" in expression:
             expression = expression.replace("pi", str(math.pi))
         if "tau" in expression:
@@ -806,5 +812,3 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
-print(isNumber("1.2"))
