@@ -283,7 +283,8 @@ class Expression:
                     if i > 0:
                         programExpression += "*"
                     programExpression += "10**"
-                    i += 1
+                    if expression[i + 1] != "-":
+                        i += 1
                     continue
 
                 if i > 0:
