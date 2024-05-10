@@ -247,6 +247,8 @@ class Expression:
         for froms in humanReadable:
             while froms in expression:
                 expression = expression.replace(froms, humanReadable.get(froms))
+        if expression[0] == "+":
+            expression = expression[1:]
         self.humanExpression = expression
         
         self.expression = self.__toProgramRedeable__(self.humanExpression)
