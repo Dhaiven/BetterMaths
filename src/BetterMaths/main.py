@@ -153,7 +153,7 @@ def factorial(number: int) -> decimal.Decimal:
     return result
 
 
-def isNumber(number):
+def isNumber(number) -> bool:
     for i in number:
         if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]:
             return False
@@ -641,7 +641,7 @@ class UnknowExpression(Expression):
         self.hasUnknow = self.expression.find(name) != -1
 
 
-    def result(self, value: float) -> float:
+    def result(self, value: float) -> decimal.Decimal:
         value = str(value)
         if value in self.cachedResults:
             return self.cachedResults[value]
@@ -664,7 +664,7 @@ class Sum(UnknowExpression):
         else:
             self.expression = str((self.end + 1) - self.start) + "*" + self.expression
     
-    def result(self) -> float:
+    def result(self) -> decimal.Decimal:
         return self.toExpression().result()
 
     def toExpression(self) -> Expression:
@@ -724,7 +724,7 @@ class Prod(UnknowExpression):
         else:
             self.expression =  "(" + self.expression + ")**" + str((self.end + 1) - self.start)
 
-    def result(self) -> float:
+    def result(self) -> decimal.Decimal:
         try:
             return self.__resolve__(self.expression)
         except OverflowError:
