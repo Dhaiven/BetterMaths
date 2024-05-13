@@ -21,7 +21,7 @@ expression.result() # 57.92325394625613
 
 ### See the [Wiki](https://github.com/Dhaiven/BetterMaths/wiki) for more documentations
 
-## Instalation
+## Installation
 Open your terminal and put ```pip install BetterMaths```
 <br> For upgrade the version, put ```pip install --upgrade BetterMaths```
 
