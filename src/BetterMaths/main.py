@@ -153,6 +153,13 @@ def factorial(number: int) -> decimal.Decimal:
     return result
 
 
+def isInteger(number) -> bool:
+    if number == "": return False
+    for i in number:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+            return False
+    return True
+
 def isNumber(number) -> bool:
     for i in number:
         if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]:
@@ -425,7 +432,7 @@ class Expression:
         if "e" in expression:
             expression = expression.replace("e", str(math.e))
         return decimal.Decimal(expression)
-    
+
 
     def split(self, separator) -> "list[Expression]":
         splitedExpressions = self.humanExpression.split(separator)
@@ -553,9 +560,9 @@ class Expression:
         return new
     
 
-    def __transformOtherResult__(self, other) -> float:
+    def __transformOtherResult__(self, other) -> decimal.Decimal:
         if type(other) != Expression:
-            otherResult = float(other)
+            otherResult = decimal.Decimal(other)
         else:
             otherResult = other.result()
         return otherResult
@@ -654,14 +661,17 @@ class UnknowExpression(Expression):
 
 
 
-class Sum(UnknowExpression):
-    def __init__(self, start, end, expression, unknow = "x"):
+class Sum(Expression):
+    def __init__(self, start, end, expression, unknows = []):
         self.start = start
         self.end = end
         
-        super().__init__(expression, unknow)
+        super().__init__(expression)
 
-        if self.hasUnknow:
+        for unknow in unknows:
+            if unknow in self.expression:
+                expression = "+".join([expression.replace(unknow, str(i)) for i in range(self.start, self.end + 1)])
+        if self.expression.find(unknow) != -1:
             self.expression = "+".join([self.expression.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
         else:
             self.expression = str((self.end + 1) - self.start) + "*" + self.expression
@@ -725,12 +735,6 @@ class Prod(UnknowExpression):
             self.expression = "*".join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
         else:
             self.expression =  "(" + self.expression + ")**" + str((self.end + 1) - self.start)
-
-    def result(self) -> decimal.Decimal:
-        try:
-            return self.__resolve__(self.expression)
-        except OverflowError:
-            return math.inf
 
     def toExpression(self) -> Expression:
         return Expression(self.expression)
@@ -815,3 +819,5 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
+
+print(Expression("pi!").result())
