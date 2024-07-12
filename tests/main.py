@@ -92,3 +92,24 @@ def compareEvalAndProd(start, end, expression: str, nbrOfExecution):
 compareEvalAndProd(1, 10, "2", 1000)
 compareEvalAndProd(1, 10, "2x", 1000)
 compareEvalAndProd(1, 10, "2x+7", 1000)
+
+"""
+2*2 executed in 0.037685700000110955 less eval
+2*4*7 executed in 0.0531063999997059 less eval
+2**3**4 executed in 0.03533580000021175 less eval
+7//5 executed in 0.04377870000007533 less eval
+7//2//3 executed in 0.034638600000107544 less eval
+2/2 executed in 0.04186089999984688 less eval
+21/2/3 executed in 0.037326300000131596 less eval
+7%5 executed in 0.04273270000157936 less eval
+7%2%3 executed in 0.0356952000011006 less eval
+2+22 executed in 0.04329280000001745 less eval
+26+98+70 executed in 0.03275039999971341 less eval
++6+9+12 executed in 0.0409098999998605 less eval
+Sum of 2 executed in 0.06397280000055616 less eval
+Sum of 2x executed in 0.04951950000031502 less eval
+Sum of 2x+7 executed in 0.03976440000042203 less eval
+Prod of 2 executed in 0.06536979999964387 less eval
+Prod of 2x executed in 0.0322189000007711 less eval
+Prod of 2x+7 executed in 0.02540469999985362 less eval
+"""

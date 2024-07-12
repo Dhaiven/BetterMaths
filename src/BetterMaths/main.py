@@ -1,4 +1,4 @@
-import math, enum, decimal
+import math, enum, decimal, time
 from typing import SupportsIndex
 
 class Option(enum.Enum):
@@ -166,33 +166,69 @@ def isNumber(number) -> bool:
             return False
     return True
 
-functions = {
-    "abs": lambda value, options: abs(value),
-    "floor": lambda value, options: math.floor(value),
-    "ceil": lambda value, options: math.ceil(value),
-    "sqrt": lambda value, options: math.sqrt(value),
-    "exp": lambda value, options: math.exp(value),
-    "log": lambda value, options: math.log(value, 10),
-    "ln": lambda value, options: math.log(value, math.e),
-    "cos": lambda value, options: cos(value, options["angles"]),
-    "sin": lambda value, options: sin(value, options["angles"]),
-    "tan": lambda value, options: tan(value, options["angles"]),
-    "acos": lambda value, options: acos(value, options["angles"]),
-    "asin": lambda value, options: asin(value, options["angles"]),
-    "atan": lambda value, options: atan(value, options["angles"]),
-    "atan2": lambda value, options: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), options["angles"]),
-    "cosh": lambda value, options: math.cosh(value),
-    "sinh": lambda value, options: math.sinh(value),
-    "tanh": lambda value, options: math.tanh(value),
-    "lcm": lambda value, options: math.lcm(*list(map(round, map(float, str(value).split(","))))),
-    "gcd": lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(","))))),
-    "gcf": lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(","))))),
-    "min": lambda value, options: min(str(value).split(",")),
-    "max": lambda value, options: max(str(value).split(",")),
-}
+
+class Constant:
+    def __init__(self, symbol, to) -> None:
+        self.symbol = symbol
+        self.to = to
+
+
+constants = [
+    Constant("pi", str(math.pi)),
+    Constant("tau", str(math.tau)),
+    Constant("e", str(math.e)),
+]
+
+
+class Function:
+    def __init__(self, symbol, callable) -> None:
+        self.symbol = symbol
+        self.callable = callable
+    
+    def call(self, value: str, options):
+        return self.callable(value, options)
+
+class Operator:
+    def __init__(self, symbol, callable) -> None:
+        self.symbol = symbol
+        self.callable = callable
+    
+    def call(self, value: str, options):
+        self.callable(value, options)
+
+
+Operator("+", lambda token, pos: token[pos - 2] + token[pos - 1])
+
+
+functions = [
+    Function("abs", lambda value, options: abs(value)),
+    Function("floor", lambda value, options: math.floor(value)),
+    Function("ceil", lambda value, options: math.ceil(value)),
+    Function("sqrt", lambda value, options: math.sqrt(value)),
+    Function("exp", lambda value, options: math.exp(value)),
+    Function("log", lambda value, options: math.log(value, 10)),
+    Function("ln", lambda value, options: math.log(value, math.e)),
+    Function("cos", lambda value, options: cos(value, options["angles"])),
+    Function("sin", lambda value, options: sin(value, options["angles"])),
+    Function("tan", lambda value, options: tan(value, options["angles"])),
+    Function("acos", lambda value, options: acos(value, options["angles"])),
+    Function("asin", lambda value, options: asin(value, options["angles"])),
+    Function("atan", lambda value, options: atan(value, options["angles"])),
+    Function("atan2", lambda value, options: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), options["angles"])),
+    Function("cosh", lambda value, options: math.cosh(value)),
+    Function("sinh", lambda value, options: math.sinh(value)),
+    Function("tanh", lambda value, options: math.tanh(value)),
+    Function("lcm", lambda value, options: math.lcm(*list(map(round, map(float, str(value).split(",")))))),
+    Function("gcd", lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(",")))))),
+    Function("gcf", lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(",")))))),
+    Function("min", lambda value, options: min(str(value).split(","))),
+    Function("max", lambda value, options: max(str(value).split(","))),
+]
+
 minNameLenght = math.inf
 maxNameLenght = -1
-for key in functions:
+for func in functions:
+    key = func.symbol
     if len(key) < minNameLenght:
         minNameLenght = len(key)
     elif len(key) > maxNameLenght:
@@ -209,6 +245,9 @@ humanReadable = {
     "-+": "-",
     "--": "+",
 }
+
+
+
 
 class Expression:
     """
@@ -264,10 +303,18 @@ class Expression:
             self.options = args.get("args")
         else:
             self.options["angles"] = args.get("angles", Option.DEGREES)
+        
+
+        self.functions: dict[str, Function] = {}
+        for function in functions:
+            self.addFunction(function)
 
 
     def setOption(self, options: dict):
         self.options = options
+    
+    def addFunction(self, function: Function):
+        self.functions[function.symbol] = function
 
     def toHumanRedeable(self) -> str:
         return self.humanExpression
@@ -392,12 +439,15 @@ class Expression:
             else:
                 value = self.__resolve__(inParenthese)
             
-            for key in range(minNameLenght, maxNameLenght):
-                func = functions.get(expression[start - key:start])
-                if func != None:
-                    value = func(value, self.options)
-                    start -= key
-                    break
+            start -= 1
+            functionSymbol = expression[start]
+            while not expression[start - 1] in ["+", "-", "/", "%", "*", ".", ","] and start > 0:
+                start -= 1
+                functionSymbol = expression[start] + functionSymbol
+
+            func = self.functions.get(functionSymbol)
+            if func != None:
+                value = func.call(value, self.options)
             
             return self.__resolve__(expression[:start] + str(value) + expression[end + 1:])
         #Factorial
@@ -819,5 +869,3 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
-print(Expression("pi!").result())
