@@ -305,6 +305,10 @@ class Expression:
             self.options["angles"] = args.get("angles", Option.DEGREES)
         
 
+        self.constants: dict[str, Constant] = {}
+        for constant in constants:
+            self.addConstant(constant)
+
         self.functions: dict[str, Function] = {}
         for function in functions:
             self.addFunction(function)
@@ -315,6 +319,9 @@ class Expression:
     
     def addFunction(self, function: Function):
         self.functions[function.symbol] = function
+    
+    def addConstant(self, constant: Constant):
+        self.constants[constant.symbol] = constant
 
     def toHumanRedeable(self) -> str:
         return self.humanExpression
@@ -475,12 +482,9 @@ class Expression:
         elif "*" in expression:
             return self.pow(expression)
         
-        if "pi" in expression:
-            expression = expression.replace("pi", str(math.pi))
-        if "tau" in expression:
-            expression = expression.replace("tau", str(math.tau))
-        if "e" in expression:
-            expression = expression.replace("e", str(math.e))
+        for symbol, constant in self.constants.items():
+            if symbol in expression:
+                expression = expression.replace(symbol, constant.to)
         return decimal.Decimal(expression)
 
 
