@@ -371,6 +371,30 @@ class Expression:
         if "atan*2*" in programExpression:
             programExpression = programExpression.replace("atan*2*", "atan2")
         return programExpression
+    
+
+    def toToken(self):
+        tokens = [""]
+        i = -1
+        lastI = i
+        for character in self.expression:
+            if character == " ":
+                tokens.append("")
+            elif character in ["/", "%", "*"]:
+                tokens = ["", tokens.pop(lastI), character] + tokens
+                i = 0
+            elif character in ["+", "-"]:
+                tokens.append("")
+                tokens.append(character)
+                i = -2
+            else:
+                tokens[i] = tokens[i] + character
+                if i != -1:
+                    lastI = i
+                    i = -1
+        if tokens[0] == "":
+            tokens.pop(0)
+        return tokens
 
 
     def result(self) -> decimal.Decimal:
@@ -873,3 +897,48 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
+
+
+def test(tokens: list):
+    result = 0
+    while len(tokens) > 0:
+        if "*" in tokens:
+            i = tokens.index("*")
+            if isInteger(tokens[i - 2]):
+                result += int(tokens[i - 2]) * int(tokens[i - 1])
+                tokens = tokens[:i - 2] + tokens[i + 1:]
+            else:
+                result *= int(tokens[i - 1])
+        elif "+" in tokens:
+            i = tokens.index("+")
+            if isInteger(tokens[i - 2]):
+                result += int(tokens[i - 2]) + int(tokens[i - 1])
+                tokens = tokens[:i - 2] + tokens[i + 1:]
+            else:
+                result += int(tokens[i - 1])
+                tokens = tokens[:i - 1] + tokens[i + 1:]
+        elif "-" in tokens:
+            i = tokens.index("-")
+            if isInteger(tokens[i - 2]):
+                result += int(tokens[i - 2]) - int(tokens[i - 1])
+                tokens = tokens[:i - 2] + tokens[i + 1:]
+            else:
+                result -= int(tokens[i - 1])
+                tokens = tokens[:i - 1] + tokens[i + 1:]
+    return result
+
+
+expression = "2-2"
+["2", "+", "9", "*", "3"]
+["2", "9", "+", "3", "*"]
+["9", "3", "*", "2", "+"]
+def rapidity(func):
+    start = time.time()
+    for i in range(100000):
+        func()
+    print(func())
+    print(time.time() - start)
+
+
+rapidity(lambda: Expression(expression).result())
+rapidity(lambda: test(Expression(expression).toToken()))
