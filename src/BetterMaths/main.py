@@ -275,27 +275,88 @@ class Expression:
     def toProgramRedeable(self) -> str:
         return self.expression
     
-    def __getProgramReadable__(self) -> dict:
-        return programReadable
-    
-    def sub(self, expression: str):
-        return eval(expression)
+    def __toProgramRedeable__(self, expression: str) -> str:
+        if expression[-1] == "E":
+            expression += "+1"
+        programExpression = ""
+        lenght = len(expression)
+        i = -1
+        while i < lenght - 1:
+            i += 1
+            character = expression[i]
+            if not character in ["+", "-", "/", "%", "*", ".", ","] and not isNumber(character):
+                if character == "^":
+                    programExpression += "**"
+                    continue
+                elif character == "E":
+                    if i > 0:
+                        programExpression += "*"
+                    programExpression += "10**"
+                    if expression[i + 1] != "-":
+                        i += 1
+                    continue
 
-    def result(self) -> float:
-        tab = [self.expression]
-        result = 0
-        separators = []
-        while len(tab) > 0:
-            if len(separators) > 0 and separators[-1] in ["//", "/", "%"]:
-                expression = tab.pop(0)
-            else:
-                expression = tab.pop()
-            if "(" in expression:
-                start = expression.find("(")
+                if i > 0:
+                    last = expression[i - 1]
+                else:
+                    last = expression[i]
+                if i < lenght - 1:
+                    next = expression[i + 1]
+                else:
+                    next = expression[i]
+                if character != ")" and character != "!":
+                    if isNumber(last):
+                        programExpression += "*"
+                elif next == "(":
+                    programExpression += character + "*"
+                    continue
+                if character != "(" and isNumber(next):
+                    programExpression += character + "*"
+                    continue
+            programExpression += character
+        if "atan*2*" in programExpression:
+            programExpression = programExpression.replace("atan*2*", "atan2")
+        return programExpression
+
+    def result(self) -> decimal.Decimal:
+        try:
+            return self.__resolve__()
+        except decimal.Overflow:
+            return decimal.Decimal(math.inf)
+    
+    def findNumbers(self, text: str, start: int, symbolLenght: int = 1):
+        rightI = start + symbolLenght
+        rightNbr = ""
+        while rightI < len(text) and isPositiveNumber(text[rightI]):
+            rightNbr += text[rightI]
+            rightI += 1
+        leftI = start - 1
+        leftNbr = ""
+        while leftI >= 0 and isNumber(text[leftI]):
+            leftNbr = text[leftI] + leftNbr
+            if text[leftI] == "-":
+                break
+            leftI -= 1
+        return text[:leftI + 1] + text[rightI:], leftNbr, rightNbr
+
+    def __resolve__(self) -> decimal.Decimal:
+        t = self.expression
+        results = []
+        allTokens = [t]
+        while len(allTokens) > 0:
+            tokens = allTokens.pop()
+            result = 0
+
+            for symbol, constant in self.constants.items():
+                if symbol in tokens:
+                    tokens = tokens.replace(symbol, constant.to)
+
+            if "(" in tokens:
+                start = tokens.find("(")
                 nbrCanBePassed = 1
                 end = -1
-                for i in range(start + 1, len(expression)):
-                    element = expression[i]
+                for i in range(start + 1, len(tokens)):
+                    element = tokens[i]
                     if element == "(":
                         nbrCanBePassed += 1
                     elif element == ")":
@@ -303,85 +364,88 @@ class Expression:
                         if nbrCanBePassed == 0:
                             end = i
                             break
-
-                inParenthese = expression[start + 1:end]
-                if "," in inParenthese:
-                    value = ",".join([str(self.__resolve__(v)) for v in inParenthese.split(",")])
-                else:
-                    value = self.__resolve__(inParenthese)
+                inParenthese = tokens[start + 1:end]
                 
-                for key in range(minNameLenght, maxNameLenght):
-                    func = functions.get(expression[start - key:start])
-                    if func != None:
-                        value = func(value, self.options)
-                        start -= key
-                        break
+                if len(results) == 0:
+                    allTokens.append(tokens)
+                    allTokens.append(inParenthese)
+                    continue
+                value = results.pop()
 
-                tab += [expression[:start] + str(value) + expression[end + 1:]]
+                start -= 1
+                functionSymbol = ""
+                while not tokens[start] in ["+", "-", "/", "%", "*", ".", ","] and start > 0:
+                    functionSymbol = tokens[start] + functionSymbol
+                    start -= 1
+                func = self.functions.get(functionSymbol)
+                if func != None:
+                    value = func.call(value, self.options)
+                
+                allTokens.append(tokens[:start + 1] + str(value) + tokens[end + 1:])
                 continue
             #Factorial
-            elif "!" in expression:
-                start = expression.find("!")
+            start = tokens.find("!")
+            if start != -1:
                 mustBeFactorial = ""
                 for i in range(start - 1, -1, -1):
-                    if isNumber(expression[i]):
-                        mustBeFactorial = expression[i] + mustBeFactorial
+                    if tokens[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                        mustBeFactorial = tokens[i] + mustBeFactorial
                     else:
                         break
-                tab += [expression[:start - len(mustBeFactorial)] + str(math.factorial(int(mustBeFactorial))) + expression[start + 1:]]
-                continue
-            continues = True
-            for separator in ["+",
-                              #"-",
-                               "//", "/", "%", "**", "*"]:
-                if separator in expression:
-                    values = expression.split(separator)
-                    tab += values
-                    separators += [separator] * len(values)
-                    continues = False
-                    break
-            if "-" in expression:
-                return self.sub(expression)
+                result += factorial(int(mustBeFactorial))
+                allTokens.append(tokens[:start - len(mustBeFactorial)] + tokens[start + 1:])
+            while "**" in tokens:
+                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.rindex("**"), 2)
+                if leftNbr != "" and rightNbr != "":
+                    result += float(leftNbr) ** float(rightNbr)
+                elif leftNbr != "":
+                    result = float(leftNbr) ** result
+            while "*" in tokens:
+                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("*"))
+                if leftNbr != "" and rightNbr != "":
+                    result += float(leftNbr) * float(rightNbr)
+                elif rightNbr != "":
+                    result *= float(rightNbr)
+            while "//" in tokens:
+                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("//"), 2)
+                if leftNbr != "" and rightNbr != "":
+                    result += float(leftNbr) // float(rightNbr)
+                elif rightNbr != "":
+                    result //= float(rightNbr)
+            while "/" in tokens:
+                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("/"))
+                if leftNbr != "" and rightNbr != "":
+                    result += float(leftNbr) / float(rightNbr)
+                elif rightNbr != "":
+                    result /= float(rightNbr)
+            while "%" in tokens:
+                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("%"))
+                if leftNbr != "" and rightNbr != "":
+                    result += float(leftNbr) % float(rightNbr)
+                elif rightNbr != "":
+                    result %= float(rightNbr)
+            while "-" in tokens:
+                tokens, nbr1, nbr2 = self.findNumbers(tokens, tokens.index("-"))
+                if nbr1 != "" and nbr2 != "":
+                    result += float(nbr1) - float(nbr2)
+                elif nbr1 != "":
+                    result -= float(nbr1)
+                elif nbr2 != "":
+                    result -= float(nbr2)
+            while "+" in tokens:
+                tokens, nbr1, nbr2 = self.findNumbers(tokens, tokens.index("+"))
+                if nbr1 != "":
+                    result += float(nbr1)
+                if nbr2 != "":
+                    result += float(nbr2)
             
-            if continues:
-                if "pi" in expression:
-                    expression = expression.replace("pi", str(math.pi))
-                if "tau" in expression:
-                    expression = expression.replace("tau", str(math.tau))
-                if "e" in expression:
-                    expression = expression.replace("e", str(math.e))
-                
-                separator = separators.pop()
-                print(expression)
-                try:
-                    if separator == "+":
-                        result += float(expression)
-                    elif separator == "-":
-                        result -= float(expression)
-                    elif separator == "//":
-                        if result == 0:
-                            result = 1
-                        result //= float(expression)
-                    elif separator == "/":
-                        if result == 0:
-                            result = 1
-                        result /= float(expression)
-                    elif separator == "%":
-                        if result == 0:
-                            result = 1
-                        result %= float(expression)
-                    elif separator == "**":
-                        if result == 0:
-                            result = 1
-                        result = float(expression) ** result
-                    elif separator == "*":
-                        if result == 0:
-                            result = 1
-                        result *= float(expression)
-                except OverflowError:
-                    return math.inf
-        return result
+            if len(tokens) > 0:
+                result += float(tokens)
+           
+            results.append(result)
+        return decimal.Decimal(results[0])
     
+
 
     def split(self, separator) -> "list[Expression]":
         splitedExpressions = self.humanExpression.split(separator)
@@ -811,5 +875,5 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-e = Expression("7//5")
-print(e.result())
+
+print(Expression("2*4*7").result())
