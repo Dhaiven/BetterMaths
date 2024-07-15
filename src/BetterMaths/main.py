@@ -161,6 +161,14 @@ def isInteger(number) -> bool:
     return True
 
 def isNumber(number) -> bool:
+    if number[0] == "-":
+        number = number[1:]
+    for i in number:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]:
+            return False
+    return True
+
+def isPositiveNumber(number) -> bool:
     for i in number:
         if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]:
             return False
@@ -394,9 +402,8 @@ class Expression:
         return text[:leftI + 1] + text[rightI:], leftNbr, rightNbr
 
     def __resolve__(self) -> decimal.Decimal:
-        t = self.expression
         results = []
-        allTokens = [t]
+        allTokens = [self.expression]
         while len(allTokens) > 0:
             tokens = allTokens.pop()
             result = 0
@@ -405,8 +412,8 @@ class Expression:
                 if symbol in tokens:
                     tokens = tokens.replace(symbol, constant.to)
 
-            if "(" in tokens:
-                start = tokens.find("(")
+            start = tokens.find("(")
+            if start != -1:
                 nbrCanBePassed = 1
                 end = -1
                 for i in range(start + 1, len(tokens)):
@@ -448,18 +455,24 @@ class Expression:
                         break
                 result += factorial(int(mustBeFactorial))
                 allTokens.append(tokens[:start - len(mustBeFactorial)] + tokens[start + 1:])
+                continue
+
             while "**" in tokens:
                 tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.rindex("**"), 2)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) ** float(rightNbr)
                 elif leftNbr != "":
                     result = float(leftNbr) ** result
-            while "*" in tokens:
-                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("*"))
+            
+            index = tokens.find("*")
+            while index != -1:
+                tokens, leftNbr, rightNbr = self.findNumbers(tokens, index)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) * float(rightNbr)
                 elif rightNbr != "":
                     result *= float(rightNbr)
+                index = tokens.find("*")
+
             while "//" in tokens:
                 tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("//"), 2)
                 if leftNbr != "" and rightNbr != "":
@@ -486,12 +499,15 @@ class Expression:
                     result -= float(nbr1)
                 elif nbr2 != "":
                     result -= float(nbr2)
-            while "+" in tokens:
-                tokens, nbr1, nbr2 = self.findNumbers(tokens, tokens.index("+"))
+            
+            index = tokens.find("+")
+            while index != -1:
+                tokens, nbr1, nbr2 = self.findNumbers(tokens, index)
                 if nbr1 != "":
                     result += float(nbr1)
                 if nbr2 != "":
                     result += float(nbr2)
+                index = tokens.find("+")
 
             if len(tokens) > 0:
                 result += float(tokens)
@@ -885,4 +901,31 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-print(Expression("2*4*7").result())
+
+expression = "2*2"
+def rapidity(f):
+    start = time.time()
+    for i in range(100000):
+        f()
+    print(f())
+    print(time.time() - start)
+
+def a():
+    text[0]
+    text[0]
+    text[0]
+    text[0]
+
+def b():
+    a = text[0]
+    a
+    a
+    a
+
+text = "Test"
+rapidity(a)
+rapidity(b)
+
+rapidity(lambda: Expression(expression).result())
+rapidity(lambda: eval(expression))
+
