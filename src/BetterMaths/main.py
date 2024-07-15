@@ -1,4 +1,5 @@
-import math, enum, time
+import math, enum, decimal, time
+from typing import SupportsIndex
 
 class Option(enum.Enum):
     DEGREES = 0,
@@ -140,40 +141,94 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     expression = Expression(calcul, args=options)
     return expression.result()
 
-def isNumber(number):
-    try:
-        float(number)
-        return True
-    except Exception:
-        return False
 
-functions = {
-    "abs": lambda value, options: abs(value),
-    "floor": lambda value, options: math.floor(value),
-    "ceil": lambda value, options: math.ceil(value),
-    "sqrt": lambda value, options: math.sqrt(value),
-    "exp": lambda value, options: math.exp(value),
-    "log": lambda value, options: math.log(value, 10),
-    "ln": lambda value, options: math.log(value, math.e),
-    "cos": lambda value, options: cos(value, options["angles"]),
-    "sin": lambda value, options: sin(value, options["angles"]),
-    "tan": lambda value, options: tan(value, options["angles"]),
-    "acos": lambda value, options: acos(value, options["angles"]),
-    "asin": lambda value, options: asin(value, options["angles"]),
-    "atan": lambda value, options: atan(value, options["angles"]),
-    "atan2": lambda value, options: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), options["angles"]),
-    "cosh": lambda value, options: math.cosh(value),
-    "sinh": lambda value, options: math.sinh(value),
-    "tanh": lambda value, options: math.tanh(value),
-    "lcm": lambda value, options: math.lcm(*list(map(round, map(float, str(value).split(","))))),
-    "gcd": lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(","))))),
-    "gcf": lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(","))))),
-    "min": lambda value, options: min(str(value).split(",")),
-    "max": lambda value, options: max(str(value).split(",")),
-}
+def factorial(number: int) -> decimal.Decimal:
+    if type(number) != int:
+        raise TypeError("'float' object cannot be interpreted as an integer")
+    if number < 0:
+        raise ValueError("factorial() not defined for negative values")
+    result = decimal.Decimal(number)
+    for i in range(2, number):
+        result *= decimal.Decimal(i)
+    return result
+
+
+def isInteger(number) -> bool:
+    if number == "": return False
+    for i in number:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+            return False
+    return True
+
+def isNumber(number) -> bool:
+    for i in number:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]:
+            return False
+    return True
+
+
+class Constant:
+    def __init__(self, symbol, to) -> None:
+        self.symbol = symbol
+        self.to = to
+
+
+constants = [
+    Constant("pi", str(math.pi)),
+    Constant("tau", str(math.tau)),
+    Constant("e", str(math.e)),
+]
+
+
+class Function:
+    def __init__(self, symbol, callable) -> None:
+        self.symbol = symbol
+        self.callable = callable
+    
+    def call(self, value: str, options):
+        return self.callable(value, options)
+
+class Operator:
+    def __init__(self, symbol, callable) -> None:
+        self.symbol = symbol
+        self.callable = callable
+    
+    def call(self, value: str, options):
+        self.callable(value, options)
+
+
+Operator("+", lambda token, pos: token[pos - 2] + token[pos - 1])
+
+
+functions = [
+    Function("abs", lambda value, options: abs(value)),
+    Function("floor", lambda value, options: math.floor(value)),
+    Function("ceil", lambda value, options: math.ceil(value)),
+    Function("sqrt", lambda value, options: math.sqrt(value)),
+    Function("exp", lambda value, options: math.exp(value)),
+    Function("log", lambda value, options: math.log(value, 10)),
+    Function("ln", lambda value, options: math.log(value, math.e)),
+    Function("cos", lambda value, options: cos(value, options["angles"])),
+    Function("sin", lambda value, options: sin(value, options["angles"])),
+    Function("tan", lambda value, options: tan(value, options["angles"])),
+    Function("acos", lambda value, options: acos(value, options["angles"])),
+    Function("asin", lambda value, options: asin(value, options["angles"])),
+    Function("atan", lambda value, options: atan(value, options["angles"])),
+    Function("atan2", lambda value, options: atan2(float(str(value).split(",")[0]), float(str(value).split(",")[1]), options["angles"])),
+    Function("cosh", lambda value, options: math.cosh(value)),
+    Function("sinh", lambda value, options: math.sinh(value)),
+    Function("tanh", lambda value, options: math.tanh(value)),
+    Function("lcm", lambda value, options: math.lcm(*list(map(round, map(float, str(value).split(",")))))),
+    Function("gcd", lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(",")))))),
+    Function("gcf", lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(",")))))),
+    Function("min", lambda value, options: min(str(value).split(","))),
+    Function("max", lambda value, options: max(str(value).split(","))),
+]
+
 minNameLenght = math.inf
 maxNameLenght = -1
-for key in functions:
+for func in functions:
+    key = func.symbol
     if len(key) < minNameLenght:
         minNameLenght = len(key)
     elif len(key) > maxNameLenght:
@@ -191,18 +246,8 @@ humanReadable = {
     "--": "+",
 }
 
-programReadable = {
-    "^": "**",
-    ")(": ")*("
-}
-for nbr in range(0, 10):
-    programReadable[str(nbr) + "("] = str(nbr) + "*("
-    for func in functions:
-        programReadable[str(nbr) + func] = str(nbr) + "*" + func
-for func in functions:
-        programReadable[")" + func] = ")*" + func
 
-programReadable["atan2*("] = "atan2("
+
 
 class Expression:
     """
@@ -246,28 +291,37 @@ class Expression:
     
     def __init__(self, expression: str, **args):
         for froms in humanReadable:
-            if froms in expression: # Just for optimisation
+            while froms in expression:
                 expression = expression.replace(froms, humanReadable.get(froms))
-        #If we have +number at the beginning
-        while expression.startswith("+"):
+        if expression[0] == "+":
             expression = expression[1:]
         self.humanExpression = expression
         
-        self.expression = self.humanExpression
-        a = self.__getProgramReadable__()
-        for froms in a:
-            if froms in self.expression: # Just for optimisation
-                self.expression = self.expression.replace(froms, a.get(froms))
-
+        self.expression = self.__toProgramRedeable__(self.humanExpression)
         self.options = {}
         if "args" in args and len(args.get("args")) != 0:
             self.options = args.get("args")
         else:
             self.options["angles"] = args.get("angles", Option.DEGREES)
+        
+
+        self.constants: dict[str, Constant] = {}
+        for constant in constants:
+            self.addConstant(constant)
+
+        self.functions: dict[str, Function] = {}
+        for function in functions:
+            self.addFunction(function)
 
 
     def setOption(self, options: dict):
         self.options = options
+    
+    def addFunction(self, function: Function):
+        self.functions[function.symbol] = function
+    
+    def addConstant(self, constant: Constant):
+        self.constants[constant.symbol] = constant
 
     def toHumanRedeable(self) -> str:
         return self.humanExpression
@@ -438,13 +492,12 @@ class Expression:
                     result += float(nbr1)
                 if nbr2 != "":
                     result += float(nbr2)
-            
+
             if len(tokens) > 0:
                 result += float(tokens)
            
             results.append(result)
         return decimal.Decimal(results[0])
-    
 
 
     def split(self, separator) -> "list[Expression]":
@@ -573,23 +626,25 @@ class Expression:
         return new
     
 
-    def __divmod__(self, other) -> 'tuple[int, int]':
-        result = self.result()
-        otherResult = 0
+    def __transformOtherResult__(self, other) -> decimal.Decimal:
         if type(other) != Expression:
-            otherResult = float(other)
+            otherResult = decimal.Decimal(other)
         else:
             otherResult = other.result()
+        return otherResult
+
+
+    def __divmod__(self, other) -> 'tuple[int, int]':
+        result = self.result()
+        otherResult = self.__transformOtherResult__(other)
+        
         return (result // otherResult, result % otherResult)
     
 
     def __rdivmod__(self, other) -> 'tuple[int, int]':
         result = self.result()
-        otherResult = 0
-        if type(other) != Expression:
-            otherResult = float(other)
-        else:
-            otherResult = other.result()
+        otherResult = self.__transformOtherResult__(other)
+
         return (otherResult // result, otherResult % result)
 
 
@@ -597,64 +652,30 @@ class Expression:
         new = Expression("-(" + self.humanExpression + ")")
         new.setOption(self.options)
         return new
-    
+
 
     def __eq__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
+        return self.result() == self.__transformOtherResult__(other)
 
-        return self.result() == otherResult
-    
+
     def __ne__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
+        return self.result() != self.__transformOtherResult__(other)
 
-        return self.result() != otherResult
-    
+
     def __lt__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() < otherResult
+        return self.result() < self.__transformOtherResult__(other)
 
 
     def __le__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() <= otherResult
+        return self.result() <= self.__transformOtherResult__(other)
 
 
     def __gt__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() > otherResult
+        return self.result() > self.__transformOtherResult__(other)
 
 
     def __ge__(self, other) -> bool:
-        otherResult = ""
-        if type(other) != Expression:
-            otherResult = resolve(str(other))
-        else:
-            otherResult = other.result()
-
-        return self.result() >= otherResult
+        return self.result() >= self.__transformOtherResult__(other)
     
 
     def __float__(self) -> float:
@@ -669,8 +690,7 @@ class Expression:
         return abs(self.result())
     
 
-    #TODO: ndigits must be SupportsIndex
-    def __round__(self, ndigits: None = None) -> int:
+    def __round__(self, ndigits: SupportsIndex = None) -> int:
         return round(self.result(), ndigits)
     
 
@@ -694,42 +714,35 @@ class UnknowExpression(Expression):
 
         self.cachedResults = {}
         self.hasUnknow = self.expression.find(name) != -1
-    
-    def __getProgramReadable__(self) -> dict:
-        replacables = super().__getProgramReadable__()
-        for nbr in range(0, 10):
-            replacables[str(nbr) + self.name] = str(nbr) + "*" + self.name
-            replacables[self.name + str(nbr)] = self.name + "*" + str(nbr)
-        return replacables
 
 
-    def result(self, value: float) -> float:
+    def result(self, value: float) -> decimal.Decimal:
         value = str(value)
         if value in self.cachedResults:
             return self.cachedResults[value]
-        if self.hasUnknow:
-            r = resolve(self.expression.replace(self.name, value), self.options)
-        else:
-            r = resolve(self.expression, self.options)
-        self.cachedResults[value] = r
-        return r
+        
+        result = self.__resolve__(self.expression.replace(self.name, value) if self.hasUnknow else self.expression)
+        self.cachedResults[value] = result
+        return result
 
 
 
-
-class Sum(UnknowExpression):
-    def __init__(self, start, end, expression, unknow = "x"):
+class Sum(Expression):
+    def __init__(self, start, end, expression, unknows = []):
         self.start = start
         self.end = end
         
-        super().__init__(expression, unknow)
+        super().__init__(expression)
 
-        if self.hasUnknow:
+        for unknow in unknows:
+            if unknow in self.expression:
+                expression = "+".join([expression.replace(unknow, str(i)) for i in range(self.start, self.end + 1)])
+        if self.expression.find(unknow) != -1:
             self.expression = "+".join([self.expression.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
         else:
             self.expression = str((self.end + 1) - self.start) + "*" + self.expression
     
-    def result(self) -> float:
+    def result(self) -> decimal.Decimal:
         return self.toExpression().result()
 
     def toExpression(self) -> Expression:
@@ -785,12 +798,9 @@ class Prod(UnknowExpression):
         super().__init__(expression, unknow)
 
         if self.hasUnknow:
-            self.expression = "*" .join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
+            self.expression = "*".join(["(" + self.expression.replace(self.name, str(i)) + ")" for i in range(self.start, self.end + 1)])
         else:
             self.expression =  "(" + self.expression + ")**" + str((self.end + 1) - self.start)
-
-    def result(self) -> float:
-        return self.toExpression().result()
 
     def toExpression(self) -> Expression:
         return Expression(self.expression)
@@ -857,7 +867,7 @@ class Equation(UnknowExpression):
 
 """
 ADD:
-- better name for UnknowExpression (may be EquationBase)
+- better name for UnknowExpression (maybe EquationBase)
 - try because i think there are many bugs
 - Sum(1, 100, "2x") equals to 2 * Sum(1, 100, "x") (more faster) (remove constant from sum)
 """
@@ -875,5 +885,4 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
 print(Expression("2*4*7").result())

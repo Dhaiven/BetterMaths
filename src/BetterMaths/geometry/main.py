@@ -81,18 +81,3 @@ class Triangle:
     
     def __repr__(self) -> str:
         return f"Triangle({self.points})"
-
-
-A = Point(0, 0)
-B = Point(0, 1)
-C = Point(1, 1)
-D = Point(1, 0)
-fig = Figure([A, B, C, D])
-rect = Rectangle(fig)
-print(rect)
-square = Square(fig)
-print(square)
-circle = Circle(Figure([A, B]))
-triangle = Triangle(Figure([A, B, C]))
-print(circle)
-print(triangle)
