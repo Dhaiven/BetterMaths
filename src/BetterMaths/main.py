@@ -1,4 +1,4 @@
-import math, enum, decimal, time
+import math, enum, decimal
 from typing import SupportsIndex
 
 class Option(enum.Enum):
@@ -180,14 +180,6 @@ class Constant:
         self.symbol = symbol
         self.to = to
 
-
-constants = [
-    Constant("pi", str(math.pi)),
-    Constant("tau", str(math.tau)),
-    Constant("e", str(math.e)),
-]
-
-
 class Function:
     def __init__(self, symbol, callable) -> None:
         self.symbol = symbol
@@ -208,7 +200,34 @@ class Operator:
 Operator("+", lambda token, pos: token[pos - 2] + token[pos - 1])
 
 
-functions = [
+class Manager:
+    def __init__(self) -> None:
+        self.functions: dict[str, object] = {}
+    
+    def all(self):
+        return self.functions
+    
+    def get(self, symbol: str):
+        return self.functions[symbol]
+
+    def add(self, function):
+        self.functions[function.symbol] = function
+
+    def adds(self, functions: list):
+        for function in functions:
+            self.add(function)
+        return self
+
+
+constants = Manager()
+constants.adds([
+    Constant("pi", str(math.pi)),
+    Constant("tau", str(math.tau)),
+    Constant("e", str(math.e)),
+])
+
+functions = Manager()
+functions.adds([
     Function("abs", lambda value, options: abs(value)),
     Function("floor", lambda value, options: math.floor(value)),
     Function("ceil", lambda value, options: math.ceil(value)),
@@ -231,20 +250,7 @@ functions = [
     Function("gcf", lambda value, options: math.gcd(*list(map(round, map(float, str(value).split(",")))))),
     Function("min", lambda value, options: min(str(value).split(","))),
     Function("max", lambda value, options: max(str(value).split(","))),
-]
-
-minNameLenght = math.inf
-maxNameLenght = -1
-for func in functions:
-    key = func.symbol
-    if len(key) < minNameLenght:
-        minNameLenght = len(key)
-    elif len(key) > maxNameLenght:
-        maxNameLenght = len(key)
-# Because last index in range is exclude
-maxNameLenght += 1
-
-
+])
 
 humanReadable = {
     " ": "",
@@ -253,7 +259,6 @@ humanReadable = {
     "-+": "-",
     "--": "+",
 }
-
 
 
 
@@ -301,8 +306,6 @@ class Expression:
         for froms in humanReadable:
             while froms in expression:
                 expression = expression.replace(froms, humanReadable.get(froms))
-        if expression[0] == "+":
-            expression = expression[1:]
         self.humanExpression = expression
         
         self.expression = self.__toProgramRedeable__(self.humanExpression)
@@ -311,15 +314,9 @@ class Expression:
             self.options = args.get("args")
         else:
             self.options["angles"] = args.get("angles", Option.DEGREES)
-        
 
-        self.constants: dict[str, Constant] = {}
-        for constant in constants:
-            self.addConstant(constant)
-
-        self.functions: dict[str, Function] = {}
-        for function in functions:
-            self.addFunction(function)
+        self.constants = constants
+        self.functions = functions
 
 
     def setOption(self, options: dict):
@@ -403,21 +400,21 @@ class Expression:
 
     def __resolve__(self) -> decimal.Decimal:
         results = []
-        allTokens = [self.expression]
-        while len(allTokens) > 0:
-            tokens = allTokens.pop()
+        allExpression = [self.expression]
+        while len(allExpression) > 0:
+            expression = allExpression.pop()
             result = 0
 
-            for symbol, constant in self.constants.items():
-                if symbol in tokens:
-                    tokens = tokens.replace(symbol, constant.to)
+            for symbol, constant in self.constants.all().items():
+                if symbol in expression:
+                    expression = expression.replace(symbol, constant.to)
 
-            start = tokens.find("(")
+            start = expression.find("(")
             if start != -1:
                 nbrCanBePassed = 1
                 end = -1
-                for i in range(start + 1, len(tokens)):
-                    element = tokens[i]
+                for i in range(start + 1, len(expression)):
+                    element = expression[i]
                     if element == "(":
                         nbrCanBePassed += 1
                     elif element == ")":
@@ -425,92 +422,105 @@ class Expression:
                         if nbrCanBePassed == 0:
                             end = i
                             break
-                inParenthese = tokens[start + 1:end]
+                inParenthese = expression[start + 1:end]
                 
                 if len(results) == 0:
-                    allTokens.append(tokens)
-                    allTokens.append(inParenthese)
+                    allExpression.append(expression)
+                    allExpression.append(inParenthese)
                     continue
                 value = results.pop()
 
                 start -= 1
                 functionSymbol = ""
-                while not tokens[start] in ["+", "-", "/", "%", "*", ".", ","] and start > 0:
-                    functionSymbol = tokens[start] + functionSymbol
+                while not expression[start] in ["+", "-", "/", "%", "*", ".", ","] and start > 0:
+                    functionSymbol = expression[start] + functionSymbol
                     start -= 1
                 func = self.functions.get(functionSymbol)
                 if func != None:
                     value = func.call(value, self.options)
                 
-                allTokens.append(tokens[:start + 1] + str(value) + tokens[end + 1:])
+                allExpression.append(expression[:start + 1] + str(value) + expression[end + 1:])
                 continue
             #Factorial
-            start = tokens.find("!")
+            start = expression.find("!")
             if start != -1:
                 mustBeFactorial = ""
                 for i in range(start - 1, -1, -1):
-                    if tokens[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
-                        mustBeFactorial = tokens[i] + mustBeFactorial
+                    if expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                        mustBeFactorial = expression[i] + mustBeFactorial
                     else:
                         break
                 result += factorial(int(mustBeFactorial))
-                allTokens.append(tokens[:start - len(mustBeFactorial)] + tokens[start + 1:])
+                allExpression.append(expression[:start - len(mustBeFactorial)] + expression[start + 1:])
                 continue
 
-            while "**" in tokens:
-                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.rindex("**"), 2)
+            index = expression.rfind("**")
+            while index != -1:
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index, 2)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) ** float(rightNbr)
                 elif leftNbr != "":
                     result = float(leftNbr) ** result
+                index = expression.rfind("**")
             
-            index = tokens.find("*")
+            index = expression.find("*")
             while index != -1:
-                tokens, leftNbr, rightNbr = self.findNumbers(tokens, index)
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) * float(rightNbr)
                 elif rightNbr != "":
                     result *= float(rightNbr)
-                index = tokens.find("*")
-
-            while "//" in tokens:
-                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("//"), 2)
+                index = expression.find("*")
+            
+            index = expression.find("//")
+            while index != -1:
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index, 2)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) // float(rightNbr)
                 elif rightNbr != "":
                     result //= float(rightNbr)
-            while "/" in tokens:
-                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("/"))
+                index = expression.find("//")
+            
+            index = expression.find("/")
+            while index != -1:
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) / float(rightNbr)
                 elif rightNbr != "":
                     result /= float(rightNbr)
-            while "%" in tokens:
-                tokens, leftNbr, rightNbr = self.findNumbers(tokens, tokens.index("%"))
+                index = expression.find("/")
+            
+            index = expression.find("%")
+            while index != -1:
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index)
                 if leftNbr != "" and rightNbr != "":
                     result += float(leftNbr) % float(rightNbr)
                 elif rightNbr != "":
                     result %= float(rightNbr)
-            while "-" in tokens:
-                tokens, nbr1, nbr2 = self.findNumbers(tokens, tokens.index("-"))
-                if nbr1 != "" and nbr2 != "":
-                    result += float(nbr1) - float(nbr2)
-                elif nbr1 != "":
-                    result -= float(nbr1)
-                elif nbr2 != "":
-                    result -= float(nbr2)
+                index = expression.find("%")
             
-            index = tokens.find("+")
+            index = expression.find("-")
             while index != -1:
-                tokens, nbr1, nbr2 = self.findNumbers(tokens, index)
-                if nbr1 != "":
-                    result += float(nbr1)
-                if nbr2 != "":
-                    result += float(nbr2)
-                index = tokens.find("+")
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index)
+                if leftNbr != "" and rightNbr != "":
+                    result += float(leftNbr) - float(rightNbr)
+                elif leftNbr != "":
+                    result -= float(leftNbr)
+                elif rightNbr != "":
+                    result -= float(rightNbr)
+                index = expression.find("-")
+            
+            index = expression.find("+")
+            while index != -1:
+                expression, leftNbr, rightNbr = self.findNumbers(expression, index)
+                if leftNbr != "":
+                    result += float(leftNbr)
+                if rightNbr != "": 
+                    result += float(rightNbr)
+                index = expression.find("+")
 
-            if len(tokens) > 0:
-                result += float(tokens)
+            if len(expression) > 0:
+                result += float(expression)
            
             results.append(result)
         return decimal.Decimal(results[0])
@@ -750,12 +760,13 @@ class Sum(Expression):
         
         super().__init__(expression)
 
+        hasUnknow = False
         for unknow in unknows:
             if unknow in self.expression:
-                expression = "+".join([expression.replace(unknow, str(i)) for i in range(self.start, self.end + 1)])
-        if self.expression.find(unknow) != -1:
-            self.expression = "+".join([self.expression.replace(self.name, str(i)) for i in range(self.start, self.end + 1)])
-        else:
+                self.expression = "+".join([self.expression.replace(unknow, str(i)) for i in range(self.start, self.end + 1)])
+                hasUnknow = True
+        
+        if not hasUnknow:
             self.expression = str((self.end + 1) - self.start) + "*" + self.expression
     
     def result(self) -> decimal.Decimal:
@@ -901,31 +912,3 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
-
-expression = "2*2"
-def rapidity(f):
-    start = time.time()
-    for i in range(100000):
-        f()
-    print(f())
-    print(time.time() - start)
-
-def a():
-    text[0]
-    text[0]
-    text[0]
-    text[0]
-
-def b():
-    a = text[0]
-    a
-    a
-    a
-
-text = "Test"
-rapidity(a)
-rapidity(b)
-
-rapidity(lambda: Expression(expression).result())
-rapidity(lambda: eval(expression))
-
