@@ -5,7 +5,7 @@
 > This module is in beta phase
 
 
-## Little documentation
+## Little documentation (for v0.0.5)
 This module add ```Expression``` class that allow resolve expression in string
 ```python
 # Create an expression
