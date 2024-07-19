@@ -142,11 +142,10 @@ def resolve(calcul: str, options: 'dict[Option]' = {}):
     return expression.result()
 
 
-def factorial(number: int) -> decimal.Decimal:
-    if type(number) != int:
-        raise TypeError("'float' object cannot be interpreted as an integer")
-    if number < 0:
-        raise ValueError("factorial() not defined for negative values")
+def factorial(number) -> decimal.Decimal:
+    if not isPositiveInteger(number):
+        raise TypeError("invalid expression " + number + "!, factorial must be an positive int")
+    number = int(number)
     result = decimal.Decimal(number)
     for i in range(2, number):
         result *= decimal.Decimal(i)
@@ -154,6 +153,13 @@ def factorial(number: int) -> decimal.Decimal:
 
 
 def isInteger(number) -> bool:
+    if number == "": return False
+    for i in number:
+        if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "-"]:
+            return False
+    return True
+
+def isPositiveInteger(number) -> bool:
     if number == "": return False
     for i in number:
         if i not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
@@ -446,11 +452,11 @@ class Expression:
             if start != -1:
                 mustBeFactorial = ""
                 for i in range(start - 1, -1, -1):
-                    if expression[i] in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                    if isNumber(expression[i]):
                         mustBeFactorial = expression[i] + mustBeFactorial
                     else:
                         break
-                result += factorial(int(mustBeFactorial))
+                result += factorial(mustBeFactorial)
                 allExpression.append(expression[:start - len(mustBeFactorial)] + expression[start + 1:])
                 continue
 
@@ -912,3 +918,5 @@ for i in range(10000):
     se.result()
 print(time.time() - start)
 """
+
+print(Expression("pi!").result())
