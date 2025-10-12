@@ -10,11 +10,11 @@ public interface ComparableResult<T> extends Result<T>, Comparable<ComparableRes
         return compareTo(result) >= 0;
     }
 
-    default boolean isSmallerThan(ComparableResult<?> result) {
+    default boolean isLessThan(ComparableResult<?> result) {
         return compareTo(result) < 0;
     }
 
-    default boolean isSmallerOrEqualThan(ComparableResult<?> result) {
+    default boolean isLessOrEqualThan(ComparableResult<?> result) {
         return compareTo(result) <= 0;
     }
 

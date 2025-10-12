@@ -1,9 +1,9 @@
 package org.bettermaths.token.symbol.relation;
 
-import org.bettermaths.token.Token;
-import org.bettermaths.token.function.Params;
 import org.bettermaths.result.Result;
 import org.bettermaths.result.primary.BooleanResult;
+import org.bettermaths.token.Token;
+import org.bettermaths.token.function.Params;
 import org.bettermaths.token.symbol.Identifier;
 import org.bettermaths.token.symbol.Symbol;
 import org.bettermaths.token.symbol.operator.AndSymbol;
@@ -11,13 +11,13 @@ import org.bettermaths.token.symbol.operator.AndSymbol;
 import java.util.LinkedList;
 import java.util.function.BiFunction;
 
-public class RelationSymbol<T extends Result<?>> extends Symbol {
+public abstract class RelationSymbol<R extends Result<?>> extends Symbol {
 
-    private final BiFunction<T, T, Boolean> comparison;
+    private final BiFunction<R, R, Boolean> comparaison;
 
-    public RelationSymbol(Identifier identifier, BiFunction<T, T, Boolean> comparison) {
-        super(identifier, 10);
-        this.comparison = comparison;
+    public RelationSymbol(Identifier identifier, int priority, BiFunction<R, R, Boolean> comparaison) {
+        super(identifier, priority);
+        this.comparaison =  comparaison;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class RelationSymbol<T extends Result<?>> extends Symbol {
 
         if (!previous.isEmpty()) {
             Symbol lastSymbol = (Symbol) previous.peek();
-            if (lastSymbol instanceof RelationSymbol<?>) {
+            if (lastSymbol instanceof RelationSymbol) {
                 return new Token[] { new AndSymbol(), lastToken };
             }
         }
@@ -41,9 +41,8 @@ public class RelationSymbol<T extends Result<?>> extends Symbol {
 
     @Override
     public BooleanResult apply(Params params) {
-        System.out.println("params = " + params);
         for (int i = 0; i < params.size() - 1; i++) {
-            if (!comparison.apply(params.get(i), params.get(i + 1))) {
+            if (!comparaison.apply(params.get(i), params.get(i + 1))) {
                 return BooleanResult.FALSE;
             }
         }

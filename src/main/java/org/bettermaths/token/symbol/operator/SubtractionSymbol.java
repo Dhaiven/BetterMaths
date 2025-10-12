@@ -16,7 +16,6 @@ public class SubtractionSymbol extends Symbol {
     public Result<?> apply(Params params) {
         if (params.size() == 1) {
             var first = (OperationalResult<?>) params.get(0);
-            System.out.println("first: " + first);
             return first.invert();
         }
 

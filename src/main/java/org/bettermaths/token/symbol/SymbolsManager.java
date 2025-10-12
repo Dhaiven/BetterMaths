@@ -1,13 +1,11 @@
 package org.bettermaths.token.symbol;
 
 import org.bettermaths.token.function.SumFunction;
-import org.bettermaths.result.ComparableResult;
 import org.bettermaths.token.symbol.operator.AndSymbol;
 import org.bettermaths.token.symbol.operator.DivisionSymbol;
 import org.bettermaths.token.symbol.operator.MultiplicationSymbol;
 import org.bettermaths.token.symbol.operator.SubtractionSymbol;
-import org.bettermaths.token.symbol.relation.EqualSymbol;
-import org.bettermaths.token.symbol.relation.RelationSymbol;
+import org.bettermaths.token.symbol.relation.*;
 
 import java.util.*;
 
@@ -32,10 +30,10 @@ public class SymbolsManager {
         add(new AndSymbol());
 
         add(new EqualSymbol());
-        add(new RelationSymbol<ComparableResult<?>>(new Identifier(">"), ComparableResult::isGreaterThan));
-        add(new RelationSymbol<ComparableResult<?>>(new Identifier(">="), ComparableResult::isGreaterOrEqualThan));
-        add(new RelationSymbol<ComparableResult<?>>(new Identifier("<"), ComparableResult::isSmallerThan));
-        add(new RelationSymbol<ComparableResult<?>>(new Identifier("<="), ComparableResult::isSmallerOrEqualThan));
+        add(new GreaterThanSymbol());
+        add(new GreaterThanOrEqualSymbol());
+        add(new LessThanSymbol());
+        add(new LessThanOrEqualSymbol());
     }
 
     public static Map<Identifier, Symbol> all() {
