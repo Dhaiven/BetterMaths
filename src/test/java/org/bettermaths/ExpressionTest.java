@@ -83,6 +83,11 @@ public class ExpressionTest {
         assertEquals(true, tokeniser.evaluate("true or false").get());
         assertEquals(true, tokeniser.evaluate("true || true || true").get());
         assertEquals(false, tokeniser.evaluate("false || false or false").get());
+
+        assertEquals(true, tokeniser.evaluate("truexorfalse").get());
+        assertEquals(false, tokeniser.evaluate("true xor true").get());
+        assertEquals(true, tokeniser.evaluate("true xor true xor true").get());
+        assertEquals(true, tokeniser.evaluate("false xor false xor true").get());
     }
 
     @Test

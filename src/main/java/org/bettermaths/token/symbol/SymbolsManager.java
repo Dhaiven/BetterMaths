@@ -26,6 +26,7 @@ public class SymbolsManager {
 
         add(new AndSymbol());
         add(new OrSymbol());
+        add(new XorSymbol());
 
         add(new EqualSymbol());
         add(new GreaterThanSymbol());
