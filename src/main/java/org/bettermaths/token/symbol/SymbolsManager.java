@@ -1,10 +1,7 @@
 package org.bettermaths.token.symbol;
 
 import org.bettermaths.token.function.SumFunction;
-import org.bettermaths.token.symbol.operator.AndSymbol;
-import org.bettermaths.token.symbol.operator.DivisionSymbol;
-import org.bettermaths.token.symbol.operator.MultiplicationSymbol;
-import org.bettermaths.token.symbol.operator.SubtractionSymbol;
+import org.bettermaths.token.symbol.operator.*;
 import org.bettermaths.token.symbol.relation.*;
 
 import java.util.*;
@@ -28,6 +25,7 @@ public class SymbolsManager {
         add(new DivisionSymbol());
 
         add(new AndSymbol());
+        add(new OrSymbol());
 
         add(new EqualSymbol());
         add(new GreaterThanSymbol());

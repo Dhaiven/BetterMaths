@@ -6,9 +6,6 @@ import org.bettermaths.result.primary.IntegerResult;
 import org.bettermaths.token.Tokenizer;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpressionTest {
@@ -81,6 +78,11 @@ public class ExpressionTest {
         assertEquals(false, tokeniser.evaluate("2>=1<0").get());
 
         assertEquals(true, tokeniser.evaluate("-2<=1>0").get());
+
+        assertEquals(true, tokeniser.evaluate("true||false").get());
+        assertEquals(true, tokeniser.evaluate("true or false").get());
+        assertEquals(true, tokeniser.evaluate("true || true || true").get());
+        assertEquals(false, tokeniser.evaluate("false || false or false").get());
     }
 
     @Test
